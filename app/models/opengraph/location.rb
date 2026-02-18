@@ -17,8 +17,14 @@ class Opengraph::Location
 
   def fetch_content_type
     Opengraph::Fetch.new.fetch_content_type(parsed_url, ip: resolved_ip) if valid?
+  rescue Net::OpenTimeout, Net::ReadTimeout
+    Rails.logger.info "OpenGraph: Timeout fetching content type for #{parsed_url}"
+    nil
+  rescue OpenSSL::SSL::SSLError
+    Rails.logger.info "OpenGraph: SSL error fetching content type for #{parsed_url}"
+    nil
   rescue => e
-    Rails.logger.warn "Failed to fetch #{parsed_url} at #{resolved_ip} (#{e})"
+    Rails.logger.warn "OpenGraph: Failed to fetch content type for #{parsed_url} (#{e.class}: #{e.message})"
     nil
   end
 
@@ -45,8 +51,27 @@ class Opengraph::Location
 
     def fetch_html
       Opengraph::Fetch.new.fetch_document(parsed_url, ip: resolved_ip)
+    rescue URI::InvalidURIError
+      Rails.logger.info "OpenGraph: Invalid URI #{parsed_url}"
+      nil
+    rescue RestrictedHTTP::PrivateNetworkGuard::Violation
+      Rails.logger.warn "OpenGraph: SSRF blocked for #{parsed_url}"
+      nil
+    rescue Opengraph::Fetch::TooManyRedirectsError
+      Rails.logger.warn "OpenGraph: Too many redirects for #{parsed_url}"
+      nil
+    rescue Opengraph::Fetch::RedirectDeniedError
+      Rails.logger.warn "OpenGraph: Redirect denied for #{parsed_url}"
+      nil
+    rescue Net::OpenTimeout, Net::ReadTimeout
+      Rails.logger.info "OpenGraph: Timeout fetching #{parsed_url}"
+      nil
+    rescue OpenSSL::SSL::SSLError
+      Rails.logger.info "OpenGraph: SSL error for #{parsed_url}"
+      nil
     rescue => e
-      Rails.logger.warn "Failed to fetch #{parsed_url} at #{resolved_ip} (#{e})"
+      Rails.logger.error "OpenGraph: Unexpected error for #{parsed_url}: #{e.class} - #{e.message}"
+      Sentry.capture_exception(e) if defined?(Sentry)
       nil
     end
 end

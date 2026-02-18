@@ -1,6 +1,8 @@
 module User::Bot
   extend ActiveSupport::Concern
 
+  BOT_TOKEN_LENGTH = 12
+
   included do
     scope :active_bots, -> { active.where(role: :bot) }
     scope :without_bots, -> { where.not(role: :bot) }
@@ -23,7 +25,7 @@ module User::Bot
     end
 
     def generate_bot_token
-      SecureRandom.alphanumeric(12)
+      SecureRandom.alphanumeric(BOT_TOKEN_LENGTH)
     end
   end
 

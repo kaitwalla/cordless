@@ -1,4 +1,6 @@
 class SearchesController < ApplicationController
+  rate_limit to: 30, within: 1.minute, only: %i[ index create ]
+
   before_action :set_messages
 
   def index

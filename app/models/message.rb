@@ -19,6 +19,7 @@ class Message < ApplicationRecord
       .includes(attachment_blob: :variant_records)
   }
   scope :with_boosts, -> { includes(boosts: :booster) }
+  scope :for_push, -> { includes(:rich_text_body, room: { memberships: :user }) }
 
   def plain_text_body
     body.to_plain_text.presence || attachment&.filename&.to_s || ""

@@ -1,4 +1,6 @@
 class Ban < ApplicationRecord
+  include Auditable
+
   belongs_to :user
 
   validate :ip_address_is_public

@@ -1,0 +1,67 @@
+require "application_system_test_case"
+
+class ProfileTest < ApplicationSystemTestCase
+  setup do
+    sign_in "jz@37signals.com"
+  end
+
+  test "user views their profile edit form" do
+    find("[data-controller='profile']").click
+    click_on "Edit profile"
+
+    assert_field "Name", with: "JZ"
+    assert_field "Bio", with: "Designer"
+  end
+
+  test "user updates their name" do
+    find("[data-controller='profile']").click
+    click_on "Edit profile"
+
+    fill_in "Name", with: "Jason Z"
+    click_on "Save changes"
+
+    find("[data-controller='profile']").click
+    click_on "Edit profile"
+
+    assert_field "Name", with: "Jason Z"
+  end
+
+  test "user updates their bio" do
+    find("[data-controller='profile']").click
+    click_on "Edit profile"
+
+    fill_in "Bio", with: "Senior Designer"
+    click_on "Save changes"
+
+    find("[data-controller='profile']").click
+    click_on "Edit profile"
+
+    assert_field "Bio", with: "Senior Designer"
+  end
+
+  test "user changes their password" do
+    find("[data-controller='profile']").click
+    click_on "Edit profile"
+
+    fill_in "New password", with: "newsecurepassword123"
+    fill_in "Confirm password", with: "newsecurepassword123"
+    click_on "Save changes"
+
+    # Log out and log back in with new password
+    find("[data-controller='profile']").click
+    click_on "Log out"
+
+    fill_in "email_address", with: "jz@37signals.com"
+    fill_in "password", with: "newsecurepassword123"
+    click_on "log_in"
+
+    assert_selector "a.btn", text: "Designers"
+  end
+
+  test "user views another user profile" do
+    visit user_url(users(:kevin))
+
+    assert_selector "h1", text: "Kevin"
+    assert_text "Programmer"
+  end
+end

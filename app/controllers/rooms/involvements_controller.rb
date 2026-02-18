@@ -6,7 +6,13 @@ class Rooms::InvolvementsController < ApplicationController
   end
 
   def update
-    @membership.update! involvement: params[:involvement]
+    involvement = params[:involvement]
+
+    unless Membership.involvements.key?(involvement)
+      return head :bad_request
+    end
+
+    @membership.update! involvement: involvement
 
     broadcast_visibility_changes
     redirect_to room_involvement_url(@room)

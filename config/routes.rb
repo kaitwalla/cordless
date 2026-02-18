@@ -22,6 +22,9 @@ Rails.application.routes.draw do
       resource :join_code, only: :create
       resource :logo, only: %i[ show destroy ]
       resource :custom_styles, only: %i[ edit update ]
+      resource :export, only: %i[ show create ] do
+        get :download, on: :member
+      end
     end
   end
 

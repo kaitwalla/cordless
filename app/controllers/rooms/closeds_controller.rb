@@ -1,4 +1,6 @@
 class Rooms::ClosedsController < RoomsController
+  rate_limit to: 10, within: 1.minute, only: :create
+
   before_action :set_room, only: %i[ show edit update ]
   before_action :ensure_can_administer, only: %i[ update ]
   before_action :remember_last_room_visited, only: :show

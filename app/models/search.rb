@@ -1,4 +1,6 @@
 class Search < ApplicationRecord
+  RECENT_SEARCHES_LIMIT = 10
+
   belongs_to :user
 
   after_create :trim_recent_searches
@@ -13,6 +15,6 @@ class Search < ApplicationRecord
 
   private
     def trim_recent_searches
-      user.searches.excluding(user.searches.ordered.limit(10)).destroy_all
+      user.searches.excluding(user.searches.ordered.limit(RECENT_SEARCHES_LIMIT)).destroy_all
     end
 end

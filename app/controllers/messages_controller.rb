@@ -1,6 +1,8 @@
 class MessagesController < ApplicationController
   include ActiveStorage::SetCurrent, RoomScoped
 
+  rate_limit to: 60, within: 1.minute, only: :create
+
   before_action :set_room, except: :create
   before_action :set_message, only: %i[ show edit update destroy ]
   before_action :ensure_can_administer, only: %i[ edit update destroy ]

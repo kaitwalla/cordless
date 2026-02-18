@@ -7,8 +7,8 @@ module Message::Pagination
     scope :last_page, -> { ordered.last(PAGE_SIZE) }
     scope :first_page, -> { ordered.first(PAGE_SIZE) }
 
-    scope :before, ->(message) { where("created_at < ?", message.created_at) }
-    scope :after, ->(message) { where("created_at > ?", message.created_at) }
+    scope :before, ->(message) { where("created_at < ? OR (created_at = ? AND id < ?)", message.created_at, message.created_at, message.id) }
+    scope :after, ->(message) { where("created_at > ? OR (created_at = ? AND id > ?)", message.created_at, message.created_at, message.id) }
 
     scope :page_before, ->(message) { before(message).last_page }
     scope :page_after, ->(message) { after(message).first_page }
