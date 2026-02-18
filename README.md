@@ -1,6 +1,6 @@
-# Campfire
+# Cordless
 
-Campfire is a web-based chat application. It supports many of the features you'd
+Cordless is a web-based chat application. It supports many of the features you'd
 expect, including:
 
 - Multiple rooms, with access controls
@@ -13,7 +13,7 @@ expect, including:
 
 ## Deploying with Docker
 
-Campfire's Docker image contains everything needed for a fully-functional,
+Cordless's Docker image contains everything needed for a fully-functional,
 single-machine deployment. This includes the web app, background jobs, caching,
 file serving, and SSL.
 
@@ -31,17 +31,17 @@ To configure additional features, you can set the following environment variable
 
 For example:
 
-    docker build -t campfire .
+    docker build -t cordless .
 
     docker run \
       --publish 80:80 --publish 443:443 \
       --restart unless-stopped \
-      --volume campfire:/rails/storage \
+      --volume cordless:/rails/storage \
       --env SECRET_KEY_BASE=$YOUR_SECRET_KEY_BASE \
       --env VAPID_PUBLIC_KEY=$YOUR_PUBLIC_KEY \
       --env VAPID_PRIVATE_KEY=$YOUR_PRIVATE_KEY \
       --env TLS_DOMAIN=chat.example.com \
-      campfire
+      cordless
 
 ## Running in development
 
@@ -50,12 +50,12 @@ For example:
 
 ## Worth Noting
 
-When you start Campfire for the first time, you’ll be guided through
+When you start Cordless for the first time, you'll be guided through
 creating an admin account.
 The email address of this admin account will be shown on the login page
 so that people who forget their password know who to contact for help.
 (You can change this email later in the settings)
 
-Campfire is single-tenant: any rooms designated "public" will be accessible by
+Cordless is single-tenant: any rooms designated "public" will be accessible by
 all users in the system. To support entirely distinct groups of customers, you
 would deploy multiple instances of the application.

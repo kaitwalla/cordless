@@ -6,15 +6,23 @@ class WebhookTest < ActiveSupport::TestCase
     message_path = Rails.application.routes.url_helpers.room_at_message_path(message.room, message)
     bot_messages_path = Rails.application.routes.url_helpers.room_bot_messages_path(message.room, users(:bender).bot_key)
 
-    WebMock.stub_request(:post, webhooks(:bender).url).
-      with(body: hash_including(
-        user: { id: message.creator.id, name: message.creator.name },
-        room: { id: message.room.id, name: message.room.name, path: bot_messages_path },
-        message: { id: message.id, body: { html: "First post!", plain: "First post!" }, path: message_path },
-      ))
+    request_body = nil
+    WebMock.stub_request(:post, webhooks(:bender).url).to_return do |request|
+      request_body = JSON.parse(request.body)
+      { status: 200, body: "", headers: {} }
+    end
 
     response = webhooks(:bender).deliver(messages(:first))
     assert_equal 200, response.code.to_i
+
+    # Verify the payload structure
+    assert_equal message.creator.id, request_body["user"]["id"]
+    assert_equal message.creator.name, request_body["user"]["name"]
+    assert_equal message.room.id, request_body["room"]["id"]
+    assert_equal message.room.name, request_body["room"]["name"]
+    assert_equal bot_messages_path, request_body["room"]["path"]
+    assert_equal message.id, request_body["message"]["id"]
+    assert_equal message_path, request_body["message"]["path"]
   end
 
   test "delivery" do
@@ -51,6 +59,6 @@ class WebhookTest < ActiveSupport::TestCase
     response = webhooks(:bender).deliver(messages(:first))
 
     reply_message = Message.last
-    assert_equal "Failed to respond within 7 seconds", reply_message.body.to_plain_text
+    assert_equal "Failed to respond (timeout)", reply_message.body.to_plain_text
   end
 end

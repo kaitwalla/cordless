@@ -48,5 +48,4 @@
 # Don't include our README
 /README.md
 
-# Ignore test files
-/test/
+# Include test files for development

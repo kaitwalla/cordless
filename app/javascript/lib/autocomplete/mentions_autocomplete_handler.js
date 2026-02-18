@@ -26,7 +26,7 @@ export default class extends BaseAutocompleteHandler {
 
     return new Trix.Attachment({
       content: mention,
-      contentType: "application/vnd.campfire.mention",
+      contentType: "application/vnd.cordless.mention",
       sgid: mentionable.sgid
     })
   }

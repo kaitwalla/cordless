@@ -1,6 +1,10 @@
 require "test_helper"
 
 class Rooms::DirectTest < ActiveSupport::TestCase
+  setup do
+    Current.user = users(:david)
+  end
+
   test "create room for same users" do
     room = Rooms::Direct.find_or_create_for([ users(:david), users(:kevin) ])
     assert room.users.include?(users(:david))

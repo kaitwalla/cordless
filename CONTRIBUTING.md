@@ -1,9 +1,9 @@
-# How to contribute to Campfire
+# How to contribute to Cordless
 
-Campfire uses GitHub
-[discussions](https://github.com/basecamp/once-campfire/discussions) to track
+Cordless uses GitHub
+[discussions](https://github.com/kaitwalla/cordless/discussions) to track
 feature requests and questions, rather than [the issue
-tracker](https://github.com/basecamp/once-campfire/issues). If you're considering
+tracker](https://github.com/kaitwalla/cordless/issues). If you're considering
 opening an issue or pull request, please open a discussion instead.
 
 Whenever a discussion leads to an actionable and well-understood task, we'll

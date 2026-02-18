@@ -17,7 +17,8 @@ class Webhook < ApplicationRecord
 
     if response.body && response.body.bytesize > MAX_RESPONSE_SIZE
       Rails.logger.warn "Webhook response too large: #{url} (#{response.body.bytesize} bytes)"
-      return receive_text_reply_to(message.room, text: "Response too large")
+      receive_text_reply_to(message.room, text: "Response too large")
+      return response
     end
 
     if text = extract_text_from(response)
@@ -25,6 +26,8 @@ class Webhook < ApplicationRecord
     elsif attachment = extract_attachment_from(response)
       receive_attachment_reply_to(message.room, attachment: attachment)
     end
+
+    response
   rescue Net::OpenTimeout, Net::ReadTimeout => e
     Rails.logger.warn "Webhook timeout: #{url} (#{e.class})"
     receive_text_reply_to message.room, text: "Failed to respond (timeout)"

@@ -1,15 +1,19 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        - BUNDLE_WITHOUT=
     ports:
       - "3000:80"
     environment:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE:?SECRET_KEY_BASE must be set in .env or environment}
       - REDIS_URL=redis://redis:6379/0
-      - RAILS_ENV=production
+      - RAILS_ENV=${RAILS_ENV:-development}
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
       - DISABLE_SSL=true
+      - BUNDLE_WITHOUT=
     volumes:
       - storage:/rails/storage
     depends_on:

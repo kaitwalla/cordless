@@ -2,7 +2,7 @@ require "test_helper"
 
 class MessagesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    host! "once.campfire.test"
+    host! "once.cordless.test"
 
     sign_in :david
     @room = rooms(:watercooler)
@@ -53,13 +53,18 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_rendered_turbo_stream_broadcast @room, :messages, action: "append", target: [ @room, :messages ] do
       assert_select ".message__body", text: /New one/
-      assert_copy_link_button room_at_message_url(@room, Message.last, host: "once.campfire.test")
+      assert_copy_link_button room_at_message_url(@room, Message.last, host: "once.cordless.test")
     end
   end
 
   test "creating a message broadcasts unread room" do
-    assert_broadcasts "unread_rooms", 1 do
-      post room_messages_url(@room, format: :turbo_stream), params: { message: { body: "New one", client_message_id: 999 } }
+    # Broadcasts go to per-user channels (unread_rooms:#{user_id}) for other members
+    other_members = @room.memberships.visible.where.not(user: users(:david))
+
+    other_members.each do |membership|
+      assert_broadcasts "unread_rooms:#{membership.user_id}", 1 do
+        post room_messages_url(@room, format: :turbo_stream), params: { message: { body: "New one", client_message_id: SecureRandom.uuid } }
+      end
     end
   end
 

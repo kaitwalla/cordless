@@ -1,11 +1,9 @@
 # Rooms for direct message chats between users. These act as a singleton, so a single set of users will
 # always refer to the same direct room.
 class Rooms::Direct < Room
-  before_create :set_membership_hash
-
   class << self
     def find_or_create_for(users)
-      find_for(users) || create_for({}, users: users)
+      find_for(users) || create_for({ membership_hash: membership_hash_for(users) }, users: users)
     end
 
     def membership_hash_for(users)
@@ -21,9 +19,4 @@ class Rooms::Direct < Room
   def default_involvement
     "everything"
   end
-
-  private
-    def set_membership_hash
-      self.membership_hash = self.class.membership_hash_for(users)
-    end
 end
