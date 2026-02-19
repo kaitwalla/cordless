@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
+ActiveRecord::Schema[8.2].define(version: 2026_02_19_151153) do
   create_table "accounts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "custom_styles"
@@ -60,6 +60,20 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "audit_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.json "changes_made"
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.bigint "resource_id"
+    t.string "resource_type", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.index ["created_at"], name: "index_audit_logs_on_created_at"
+    t.index ["resource_type", "resource_id"], name: "index_audit_logs_on_resource_type_and_resource_id"
+    t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
   create_table "bans", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address", null: false
@@ -77,6 +91,17 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
     t.datetime "updated_at", null: false
     t.index ["booster_id"], name: "index_boosts_on_booster_id"
     t.index ["message_id"], name: "index_boosts_on_message_id"
+  end
+
+  create_table "exports", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "requested_by_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_exports_on_account_id"
+    t.index ["created_at"], name: "index_exports_on_created_at"
+    t.index ["requested_by_id"], name: "index_exports_on_requested_by_id"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -101,6 +126,7 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
     t.integer "room_id", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_messages_on_creator_id"
+    t.index ["room_id", "created_at", "id"], name: "index_messages_on_room_and_created_at_and_id"
     t.index ["room_id"], name: "index_messages_on_room_id"
   end
 
@@ -119,9 +145,11 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
   create_table "rooms", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "creator_id", null: false
+    t.string "membership_hash"
     t.string "name"
     t.string "type", null: false
     t.datetime "updated_at", null: false
+    t.index ["membership_hash"], name: "index_rooms_on_membership_hash", unique: true, where: "type = 'Rooms::Direct'"
   end
 
   create_table "searches", force: :cascade do |t|
@@ -170,6 +198,8 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bans", "users"
   add_foreign_key "boosts", "messages"
+  add_foreign_key "exports", "accounts"
+  add_foreign_key "exports", "users", column: "requested_by_id"
   add_foreign_key "messages", "rooms"
   add_foreign_key "messages", "users", column: "creator_id"
   add_foreign_key "push_subscriptions", "users"

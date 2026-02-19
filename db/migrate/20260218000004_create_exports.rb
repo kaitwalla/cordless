@@ -1,4 +1,4 @@
-class CreateExports < ActiveRecord::Migration[8.0]
+class CreateExports < ActiveRecord::Migration[8.2]
   def change
     create_table :exports do |t|
       t.references :account, null: false, foreign_key: true

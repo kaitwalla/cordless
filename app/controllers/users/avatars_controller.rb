@@ -10,8 +10,7 @@ class Users::AvatarsController < ApplicationController
       expires_in 30.minutes, public: true, stale_while_revalidate: 1.week
 
       if @user.avatar.attached?
-        avatar_variant = @user.avatar.variant(SQUARE_WEBP_VARIANT).processed
-        send_webp_blob_file avatar_variant.key
+        send_avatar_variant
       elsif @user.bot?
         render_default_bot
       else
@@ -28,8 +27,22 @@ class Users::AvatarsController < ApplicationController
   private
     SQUARE_WEBP_VARIANT = { resize_to_limit: [ 512, 512 ], format: :webp }
 
-    def send_webp_blob_file(key)
-      send_file ActiveStorage::Blob.service.path_for(key), content_type: "image/webp", disposition: :inline
+    def send_avatar_variant
+      variant = @user.avatar.variant(SQUARE_WEBP_VARIANT).processed
+      if disk_service?(variant)
+        send_file variant.service.path_for(variant.key), content_type: "image/webp", disposition: :inline
+      else
+        send_blob_stream variant.image, disposition: :inline
+      end
+    rescue ActiveStorage::FileNotFoundError
+      head :not_found
+    rescue StandardError => e
+      Rails.logger.error("Failed to serve avatar: #{e.message}")
+      render_initials
+    end
+
+    def disk_service?(variant)
+      variant.service.is_a?(ActiveStorage::Service::DiskService)
     end
 
     def render_default_bot

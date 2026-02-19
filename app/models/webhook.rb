@@ -8,7 +8,7 @@ class Webhook < ApplicationRecord
 
   belongs_to :user
 
-  validates :url, format: { with: /\Ahttps?:\/\//i, message: "must be HTTP or HTTPS" }
+  validates :url, format: { with: /\Ahttps?:\/\/\S+\z/i, message: "must be HTTP or HTTPS" }
   validate :url_is_valid_uri
   validate :url_is_not_private
 

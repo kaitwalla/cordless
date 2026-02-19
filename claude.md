@@ -247,6 +247,12 @@ Jobs use Resque with Redis backend. Key jobs:
 | `SSL_DOMAIN` | Let's Encrypt domain | No |
 | `DISABLE_SSL` | Disable forced SSL | No |
 | `REDIS_URL` | Redis connection | No (defaults to localhost) |
+| `STORAGE_SERVICE` | Storage backend: `local` or `amazon` | No (defaults to local) |
+| `AWS_ACCESS_KEY_ID` | AWS access key | Yes (for S3) |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key | Yes (for S3) |
+| `AWS_REGION` | AWS region | No (defaults to us-east-1) |
+| `AWS_S3_BUCKET` | S3 bucket name | Yes (for S3) |
+| `AWS_S3_ENDPOINT` | Custom S3 endpoint (MinIO, etc.) | No |
 
 ## Common Patterns
 

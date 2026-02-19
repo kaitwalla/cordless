@@ -9,12 +9,21 @@ class Accounts::LogosController < ApplicationController
       expires_in 5.minutes, public: true, stale_while_revalidate: 1.week
 
       if Current.account&.logo&.attached?
-        logo = Current.account.logo.variant(logo_variant).processed
-        send_png_file ActiveStorage::Blob.service.path_for(logo.key)
+        processed_logo = Current.account.logo.variant(logo_variant).processed
+        if disk_service?(processed_logo)
+          send_png_file processed_logo.service.path_for(processed_logo.key)
+        else
+          send_blob_stream processed_logo.image, disposition: :inline
+        end
       else
         send_stock_icon
       end
     end
+  rescue ActiveStorage::FileNotFoundError
+    send_stock_icon
+  rescue StandardError => e
+    Rails.logger.error("Failed to serve logo: #{e.message}")
+    send_stock_icon
   end
 
   def destroy
@@ -28,6 +37,10 @@ class Accounts::LogosController < ApplicationController
 
     def send_png_file(path)
       send_file path, content_type: "image/png", disposition: :inline
+    end
+
+    def disk_service?(variant)
+      variant.service.is_a?(ActiveStorage::Service::DiskService)
     end
 
     def send_stock_icon

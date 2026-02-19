@@ -14,6 +14,12 @@ services:
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
       - DISABLE_SSL=true
       - BUNDLE_WITHOUT=
+      - STORAGE_SERVICE=${STORAGE_SERVICE:-local}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-}
+      - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-}
     volumes:
       - storage:/rails/storage
     depends_on:

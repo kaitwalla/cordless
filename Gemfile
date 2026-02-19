@@ -28,6 +28,7 @@ gem "stimulus-rails", "~> 1.3"
 
 # Media handling
 gem "image_processing", "~> 1.14"
+gem "aws-sdk-s3", "~> 1.169", require: false
 
 # Telemetry
 gem "sentry-ruby", "~> 5.26"
