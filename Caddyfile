@@ -1,0 +1,47 @@
+# Cordless Production Caddyfile
+# Caddy automatically provisions SSL certificates via Let's Encrypt
+
+{$DOMAIN} {
+	# LiveKit WebSocket connections
+	handle /livekit/* {
+		uri strip_prefix /livekit
+		reverse_proxy livekit:7880 {
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+			flush_interval -1
+		}
+	}
+
+	# Proxy all other requests to the Rails app
+	handle {
+		reverse_proxy web:80 {
+			# Headers for Rails
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Real-IP {remote_host}
+
+			# Flush immediately for streaming/WebSocket
+			flush_interval -1
+		}
+	}
+
+	# Security headers
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Remove server identification
+		-Server
+	}
+
+	# Compression
+	encode gzip zstd
+
+	# Logging
+	log {
+		output file /data/access.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}

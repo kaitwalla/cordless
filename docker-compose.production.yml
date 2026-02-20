@@ -1,16 +1,37 @@
 services:
-  web:
-    build: .
+  caddy:
+    image: caddy:2-alpine
     ports:
       - "80:80"
       - "443:443"
     environment:
+      - DOMAIN=${DOMAIN:?DOMAIN must be set (e.g., chat.example.com)}
+      - LIVEKIT_DOMAIN=${LIVEKIT_DOMAIN:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - livekit
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    build: .
+    expose:
+      - "80"
+    environment:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE:?SECRET_KEY_BASE must be set}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - RAILS_ENV=production
-      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
-      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
-      - SSL_DOMAIN=${SSL_DOMAIN}
+      - DISABLE_SSL=true
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
       - SENTRY_DSN=${SENTRY_DSN:-}
       - STORAGE_SERVICE=${STORAGE_SERVICE:-local}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
@@ -20,10 +41,9 @@ services:
       - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-}
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:?LIVEKIT_API_KEY must be set for video calls}
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:?LIVEKIT_API_SECRET must be set for video calls}
-      - LIVEKIT_URL=${LIVEKIT_URL:-wss://livekit:7880}
+      - LIVEKIT_URL=${LIVEKIT_URL:?LIVEKIT_URL must be set (e.g., wss://livekit.example.com)}
     volumes:
       - storage:/rails/storage
-      - letsencrypt:/rails/letsencrypt
     depends_on:
       redis:
         condition: service_healthy
@@ -55,8 +75,10 @@ services:
     command: >
       --keys "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
       --config /etc/livekit.yaml
+    expose:
+      - "7880"
     ports:
-      - "7880:7880"
+      # These ports must be exposed directly for WebRTC
       - "7881:7881"
       - "7882:7882/udp"
     volumes:
@@ -71,4 +93,5 @@ services:
 volumes:
   storage:
   redis_data:
-  letsencrypt:
+  caddy_data:
+  caddy_config:
