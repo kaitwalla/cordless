@@ -34,6 +34,9 @@ gem "aws-sdk-s3", "~> 1.169", require: false
 gem "sentry-ruby", "~> 5.26"
 gem "sentry-rails", "~> 5.26"
 
+# LiveKit
+gem "livekit-server-sdk", "~> 0.5"
+
 # Other
 gem "bcrypt", "~> 3.1"
 gem "web-push", "~> 3.0"

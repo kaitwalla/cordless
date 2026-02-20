@@ -1,0 +1,22 @@
+<span data-controller="call call-indicator"
+      data-call-room-id-value="<%= room.id %>"
+      data-call-token-url-value="<%= room_livekit_token_path(room) %>"
+      data-call-minimize-icon-url-value="<%= asset_path('minimize.svg') %>"
+      data-call-maximize-icon-url-value="<%= asset_path('maximize.svg') %>"
+      data-call-microphone-icon-url-value="<%= asset_path('microphone.svg') %>"
+      data-call-microphone-off-icon-url-value="<%= asset_path('microphone-off.svg') %>"
+      data-call-video-icon-url-value="<%= asset_path('video.svg') %>"
+      data-call-video-off-icon-url-value="<%= asset_path('video-off.svg') %>"
+      data-call-screen-share-icon-url-value="<%= asset_path('screen-share.svg') %>"
+      data-call-screen-share-off-icon-url-value="<%= asset_path('screen-share-off.svg') %>"
+      data-call-phone-off-icon-url-value="<%= asset_path('phone-off.svg') %>"
+      data-call-indicator-room-id-value="<%= room.id %>"
+      data-call-indicator-active-class="call-button--active">
+  <button class="btn call-button"
+          data-call-indicator-target="indicator"
+          data-action="click->call#join">
+    <%= image_tag "phone.svg", size: 20, aria: { hidden: "true" } %>
+    <span class="call-button__count" data-call-indicator-target="count" hidden></span>
+    <span class="for-screen-reader">Join call in this <%= room.direct? ? "Ping" : "room" %></span>
+  </button>
+</span>

@@ -16,5 +16,6 @@
     <span class="for-screen-reader">Settings for this <%= room.direct? ? "Ping" : "room" %></span>
   <% end %>
 
+  <%= render "rooms/call_button", room: room %>
   <%= render "rooms/involvements/bell", room: room %>
 <% end %>
