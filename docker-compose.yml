@@ -22,7 +22,8 @@ services:
       - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-}
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-secret}
-      - LIVEKIT_URL=${LIVEKIT_URL:-ws://livekit:7880}
+      # Note: LIVEKIT_URL must be accessible from the browser, so use localhost (not the Docker service name)
+      - LIVEKIT_URL=${LIVEKIT_URL:-ws://localhost:7880}
     volumes:
       - storage:/rails/storage
     depends_on:

@@ -12,11 +12,22 @@ services:
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
       - SSL_DOMAIN=${SSL_DOMAIN}
       - SENTRY_DSN=${SENTRY_DSN:-}
+      - STORAGE_SERVICE=${STORAGE_SERVICE:-local}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-}
+      - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:?LIVEKIT_API_KEY must be set for video calls}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:?LIVEKIT_API_SECRET must be set for video calls}
+      - LIVEKIT_URL=${LIVEKIT_URL:-wss://livekit:7880}
     volumes:
       - storage:/rails/storage
       - letsencrypt:/rails/letsencrypt
     depends_on:
       redis:
+        condition: service_healthy
+      livekit:
         condition: service_healthy
     restart: unless-stopped
     logging:
@@ -35,6 +46,24 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  livekit:
+    image: livekit/livekit-server:latest
+    command: >
+      --keys "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+      --config /etc/livekit.yaml
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7880/"]
       interval: 10s
       timeout: 5s
       retries: 3
