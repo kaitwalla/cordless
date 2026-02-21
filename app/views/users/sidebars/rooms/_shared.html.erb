@@ -1,5 +1,10 @@
-<%= link_to_room room,
-      id: dom_id(room, :list), data: { sorted_list_name: room.name },
-      style: "--column-gap: 0.5em", class: [ "align-center gap room btn txt-nowrap", "unread": local_assigns[:unread] ] do %>
-  <span class="overflow-ellipsis"><%= room.name %></span>
-<% end %>
+<div data-controller="call-indicator" data-call-indicator-room-id-value="<%= room.id %>" data-call-indicator-active-class="call-indicator--active">
+  <%= link_to_room room,
+        id: dom_id(room, :list), data: { sorted_list_name: room.name },
+        style: "--column-gap: 0.5em", class: [ "align-center gap room btn txt-nowrap", "unread": local_assigns[:unread] ] do %>
+    <span class="overflow-ellipsis"><%= room.name %></span>
+    <span class="call-indicator" data-call-indicator-target="indicator">
+      <%= image_tag "phone.svg", size: 14, class: "call-indicator__icon", aria: { label: "Call in progress" } %>
+    </span>
+  <% end %>
+</div>
