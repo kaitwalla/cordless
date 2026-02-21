@@ -44,8 +44,6 @@ services:
       - LIVEKIT_URL=${LIVEKIT_URL:?LIVEKIT_URL must be set (e.g., wss://livekit.example.com)}
       - RAILS_PORT=${RAILS_PORT:-3000}
     volumes:
-      - .:/rails
-      - /rails/vendor/bundle  # Don't mount over installed gems
       - ${STORAGE_PATH:-./data/storage}:/rails/storage
     depends_on:
       redis:
