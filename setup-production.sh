@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cordless Production Setup Script
-# Clones the repo and generates a configured .env file
+# Clones the repo (if needed) and generates a configured .env file
 #
 
 set -e
@@ -43,23 +43,29 @@ fi
 echo -e "Setting up Cordless for: ${GREEN}$DOMAIN${NC}"
 echo ""
 
-# Clone the repository
-INSTALL_DIR="${INSTALL_DIR:-cordless}"
+# Check if we're already in a Cordless repo
+if [ -f "docker-compose.production.yml" ] && [ -f "Gemfile" ] && [ -d ".git" ]; then
+    echo -e "${GREEN}Detected existing Cordless repository.${NC}"
+    INSTALL_DIR="."
+else
+    # Clone the repository
+    INSTALL_DIR="${INSTALL_DIR:-cordless}"
 
-if [ -d "$INSTALL_DIR" ]; then
-    echo -e "${YELLOW}Directory '$INSTALL_DIR' already exists.${NC}"
-    echo -n "Remove it and continue? [y/N] "
-    read -r REPLY < /dev/tty
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Aborted."
-        exit 1
+    if [ -d "$INSTALL_DIR" ]; then
+        echo -e "${YELLOW}Directory '$INSTALL_DIR' already exists.${NC}"
+        echo -n "Remove it and continue? [y/N] "
+        read -r REPLY < /dev/tty
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Aborted."
+            exit 1
+        fi
+        rm -rf "$INSTALL_DIR"
     fi
-    rm -rf "$INSTALL_DIR"
-fi
 
-echo "Cloning Cordless repository..."
-git clone --depth 1 "$REPO_URL" "$INSTALL_DIR"
-cd "$INSTALL_DIR"
+    echo "Cloning Cordless repository..."
+    git clone --depth 1 "$REPO_URL" "$INSTALL_DIR"
+    cd "$INSTALL_DIR"
+fi
 
 echo ""
 echo "Generating secrets..."
@@ -74,6 +80,24 @@ echo "  - SECRET_KEY_BASE"
 echo "  - REDIS_PASSWORD"
 echo "  - LIVEKIT_API_KEY"
 echo "  - LIVEKIT_API_SECRET"
+
+# Check for existing .env
+if [ -f ".env" ]; then
+    echo ""
+    echo -e "${YELLOW}.env file already exists.${NC}"
+    echo -n "Overwrite it? [y/N] "
+    read -r REPLY < /dev/tty
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Keeping existing .env file."
+        echo ""
+        echo "Building Docker images..."
+        docker compose -f docker-compose.production.yml build
+        echo ""
+        echo -e "${GREEN}Build complete!${NC}"
+        echo "Run: docker compose -f docker-compose.production.yml up -d"
+        exit 0
+    fi
+fi
 
 # Create .env file
 echo ""
@@ -146,7 +170,6 @@ echo ""
 echo "  1. Make sure ports 80, 443, 7881 (TCP), and 7882 (UDP) are open"
 echo ""
 echo "  2. Start the application:"
-echo "     cd $INSTALL_DIR"
 echo "     docker compose -f docker-compose.production.yml up -d"
 echo ""
 echo "  3. View logs:"
