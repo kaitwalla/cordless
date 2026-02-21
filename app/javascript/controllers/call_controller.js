@@ -392,7 +392,9 @@ export default class extends Controller {
 
       <div class="call-pip__video-grid">
         <div class="call-participant call-participant--local call-participant--no-video">
-          <video data-local-video autoplay playsinline muted></video>
+          <div class="call-participant__media">
+            <video data-local-video autoplay playsinline muted></video>
+          </div>
           <div class="call-participant__name">${this.#escapeHtml(this.userName || "You")}</div>
         </div>
         <div class="call-pip__participants" data-participants></div>
