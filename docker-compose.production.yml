@@ -9,8 +9,8 @@ services:
       - LIVEKIT_DOMAIN=${LIVEKIT_DOMAIN:-}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - ${CADDY_DATA_PATH:-./data/caddy/data}:/data
+      - ${CADDY_CONFIG_PATH:-./data/caddy/config}:/config
     depends_on:
       - web
       - livekit
@@ -43,7 +43,7 @@ services:
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:?LIVEKIT_API_SECRET must be set for video calls}
       - LIVEKIT_URL=${LIVEKIT_URL:?LIVEKIT_URL must be set (e.g., wss://livekit.example.com)}
     volumes:
-      - storage:/rails/storage
+      - ${STORAGE_PATH:-./data/storage}:/rails/storage
     depends_on:
       redis:
         condition: service_healthy
@@ -62,7 +62,7 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
     volumes:
-      - redis_data:/data
+      - ${REDIS_DATA_PATH:-./data/redis}:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
@@ -90,8 +90,8 @@ services:
       timeout: 5s
       retries: 3
 
-volumes:
-  storage:
-  redis_data:
-  caddy_data:
-  caddy_config:
+# Storage paths are configurable via environment variables:
+# - STORAGE_PATH: Rails storage (default: ./data/storage)
+# - REDIS_DATA_PATH: Redis persistence (default: ./data/redis)
+# - CADDY_DATA_PATH: Caddy certificates (default: ./data/caddy/data)
+# - CADDY_CONFIG_PATH: Caddy config state (default: ./data/caddy/config)

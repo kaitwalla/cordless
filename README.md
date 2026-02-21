@@ -43,6 +43,32 @@ The app will be available at http://localhost:3000
 
 ## Production Deployment
 
+### Quick Deploy
+
+Run this one-liner on your server to download all required files and generate a configured `.env`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kaitwalla/cordless/main/setup-production.sh | bash
+```
+
+This script will:
+- Download `docker-compose.production.yml`, `Caddyfile`, `livekit.yaml`, and `Dockerfile`
+- Generate secure secrets for Rails, Redis, and LiveKit
+- Create a `.env` file configured for your domain
+- Provide next steps for deployment
+
+After running, simply:
+```bash
+docker compose -f docker-compose.production.yml build
+docker compose -f docker-compose.production.yml up -d
+```
+
+---
+
+### Manual Setup
+
+If you prefer to set things up manually, follow the steps below.
+
 The production setup uses:
 - **Caddy** - Automatic HTTPS with Let's Encrypt
 - **Redis** - Caching and background jobs
@@ -231,6 +257,10 @@ docker compose -f docker-compose.production.yml start
 | `AWS_S3_BUCKET` | S3 | S3 bucket name |
 | `AWS_S3_ENDPOINT` | No | Custom S3 endpoint (MinIO, DigitalOcean Spaces) |
 | `SENTRY_DSN` | No | Sentry error tracking DSN |
+| `STORAGE_PATH` | No | Rails storage path (default: `./data/storage`) |
+| `REDIS_DATA_PATH` | No | Redis data path (default: `./data/redis`) |
+| `CADDY_DATA_PATH` | No | Caddy certificates path (default: `./data/caddy/data`) |
+| `CADDY_CONFIG_PATH` | No | Caddy config path (default: `./data/caddy/config`) |
 
 ## Firewall Configuration
 

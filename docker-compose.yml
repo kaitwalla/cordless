@@ -25,7 +25,7 @@ services:
       # Note: LIVEKIT_URL must be accessible from the browser, so use localhost (not the Docker service name)
       - LIVEKIT_URL=${LIVEKIT_URL:-ws://localhost:7880}
     volumes:
-      - storage:/rails/storage
+      - ${STORAGE_PATH:-./data/storage}:/rails/storage
     depends_on:
       redis:
         condition: service_healthy
@@ -36,7 +36,7 @@ services:
   redis:
     image: redis:7-alpine
     volumes:
-      - redis_data:/data
+      - ${REDIS_DATA_PATH:-./data/redis}:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -58,6 +58,6 @@ services:
       timeout: 5s
       retries: 3
 
-volumes:
-  storage:
-  redis_data:
+# Storage paths are configurable via environment variables:
+# - STORAGE_PATH: Rails storage (default: ./data/storage)
+# - REDIS_DATA_PATH: Redis persistence (default: ./data/redis)
