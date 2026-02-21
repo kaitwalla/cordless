@@ -51,4 +51,5 @@ class MonitoredProcess
   end
 end
 
-ProcessMonitor.new("Procfile")
+procfile = ENV["RAILS_ENV"] == "production" ? "Procfile.production" : "Procfile"
+ProcessMonitor.new(procfile)
