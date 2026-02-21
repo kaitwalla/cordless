@@ -31,9 +31,9 @@ if ! command -v docker &> /dev/null; then
     echo -e "${YELLOW}Warning: Docker is not installed. You'll need it to run Cordless.${NC}"
 fi
 
-# Get domain from user
+# Get domain from user (read from /dev/tty to work when piped from curl)
 echo -e "${YELLOW}Enter your domain name (e.g., chat.example.com):${NC}"
-read -r DOMAIN
+read -r DOMAIN < /dev/tty
 
 if [ -z "$DOMAIN" ]; then
     echo -e "${RED}Error: Domain is required.${NC}"
