@@ -1,12 +1,12 @@
 #!/bin/bash
 #
 # Cordless Production Setup Script
-# Downloads required files and generates a configured .env file
+# Clones the repo and generates a configured .env file
 #
 
 set -e
 
-REPO_RAW_URL="https://raw.githubusercontent.com/kaitwalla/cordless/main"
+REPO_URL="https://github.com/kaitwalla/cordless.git"
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -19,19 +19,14 @@ echo "=========================================="
 echo ""
 
 # Check for required commands
-for cmd in curl openssl; do
+for cmd in git openssl docker; do
     if ! command -v $cmd &> /dev/null; then
         echo -e "${RED}Error: $cmd is required but not installed.${NC}"
         exit 1
     fi
 done
 
-# Check for Docker
-if ! command -v docker &> /dev/null; then
-    echo -e "${YELLOW}Warning: Docker is not installed. You'll need it to run Cordless.${NC}"
-fi
-
-# Get domain from argument, environment variable, or prompt
+# Get domain from argument or environment variable
 DOMAIN="${1:-$DOMAIN}"
 
 if [ -z "$DOMAIN" ]; then
@@ -46,22 +41,25 @@ if [ -z "$DOMAIN" ]; then
 fi
 
 echo -e "Setting up Cordless for: ${GREEN}$DOMAIN${NC}"
-
 echo ""
-echo "Downloading production files..."
 
-# Download required files
-curl -fsSL "$REPO_RAW_URL/docker-compose.production.yml" -o docker-compose.production.yml
-echo "  - docker-compose.production.yml"
+# Clone the repository
+INSTALL_DIR="${INSTALL_DIR:-cordless}"
 
-curl -fsSL "$REPO_RAW_URL/Caddyfile" -o Caddyfile
-echo "  - Caddyfile"
+if [ -d "$INSTALL_DIR" ]; then
+    echo -e "${YELLOW}Directory '$INSTALL_DIR' already exists.${NC}"
+    echo -n "Remove it and continue? [y/N] "
+    read -r REPLY < /dev/tty
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Aborted."
+        exit 1
+    fi
+    rm -rf "$INSTALL_DIR"
+fi
 
-curl -fsSL "$REPO_RAW_URL/livekit.yaml" -o livekit.yaml
-echo "  - livekit.yaml"
-
-curl -fsSL "$REPO_RAW_URL/Dockerfile" -o Dockerfile
-echo "  - Dockerfile"
+echo "Cloning Cordless repository..."
+git clone --depth 1 "$REPO_URL" "$INSTALL_DIR"
+cd "$INSTALL_DIR"
 
 echo ""
 echo "Generating secrets..."
@@ -133,31 +131,28 @@ STORAGE_SERVICE=local
 EOF
 
 echo ""
+echo "Building Docker images (this may take a few minutes)..."
+docker compose -f docker-compose.production.yml build
+
+echo ""
 echo -e "${GREEN}=========================================="
 echo "  Setup Complete!"
 echo "==========================================${NC}"
 echo ""
-echo "Files created:"
-echo "  - docker-compose.production.yml"
-echo "  - Caddyfile"
-echo "  - livekit.yaml"
-echo "  - Dockerfile"
-echo "  - .env"
+echo "Cordless has been installed to: $(pwd)"
 echo ""
 echo "Next steps:"
 echo ""
-echo "  1. Review and edit .env if needed"
+echo "  1. Make sure ports 80, 443, 7881 (TCP), and 7882 (UDP) are open"
 echo ""
-echo "  2. Make sure ports 80, 443, 7881 (TCP), and 7882 (UDP) are open"
-echo ""
-echo "  3. Build and start the application:"
-echo "     docker compose -f docker-compose.production.yml build"
+echo "  2. Start the application:"
+echo "     cd $INSTALL_DIR"
 echo "     docker compose -f docker-compose.production.yml up -d"
 echo ""
-echo "  4. View logs:"
+echo "  3. View logs:"
 echo "     docker compose -f docker-compose.production.yml logs -f"
 echo ""
-echo "  5. Visit https://$DOMAIN to complete setup"
+echo "  4. Visit https://$DOMAIN to complete setup"
 echo ""
 echo -e "${YELLOW}Note: SSL certificates will be automatically provisioned by Caddy"
 echo -e "on first request. This may take a moment.${NC}"
