@@ -9,7 +9,7 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libsqlite3-0 libvips libjemalloc2 ffmpeg redis && \
+    apt-get install --no-install-recommends -y curl libsqlite3-0 libvips libjemalloc2 ffmpeg redis gosu && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archive
 
@@ -53,10 +53,9 @@ ARG OCI_SOURCE
 LABEL org.opencontainers.image.source="${OCI_SOURCE}"
 LABEL org.opencontainers.image.licenses="MIT"
 
-# Run and own only the runtime files as a non-root user for security
+# Create non-root user for security (entrypoint will switch to this user)
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash
-USER 1000:1000
 
 # Configure environment defaults
 ENV HTTP_IDLE_TIMEOUT=60
@@ -75,6 +74,9 @@ ENV GIT_REVISION=$GIT_REVISION
 
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443
+
+# Entrypoint fixes storage permissions then drops to rails user
+ENTRYPOINT ["bin/docker-entrypoint"]
 
 # Start the server by default, this can be overwritten at runtime
 CMD ["bin/boot"]

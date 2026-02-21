@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+# Ensure storage directories exist and have correct permissions
+# This runs as root before switching to the rails user
+if [ "$(id -u)" = "0" ]; then
+  mkdir -p /rails/storage/db
+  chown -R rails:rails /rails/storage
+  exec gosu rails "$@"
+else
+  exec "$@"
+fi
