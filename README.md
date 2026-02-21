@@ -48,8 +48,10 @@ The app will be available at http://localhost:3000
 Run this one-liner on your server to download all required files and generate a configured `.env`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kaitwalla/cordless/main/setup-production.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/kaitwalla/cordless/main/setup-production.sh) chat.example.com
 ```
+
+Replace `chat.example.com` with your actual domain.
 
 This script will:
 - Download `docker-compose.production.yml`, `Caddyfile`, `livekit.yaml`, and `Dockerfile`

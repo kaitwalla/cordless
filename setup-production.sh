@@ -31,14 +31,21 @@ if ! command -v docker &> /dev/null; then
     echo -e "${YELLOW}Warning: Docker is not installed. You'll need it to run Cordless.${NC}"
 fi
 
-# Get domain from user (read from /dev/tty to work when piped from curl)
-echo -e "${YELLOW}Enter your domain name (e.g., chat.example.com):${NC}"
-read -r DOMAIN < /dev/tty
+# Get domain from argument, environment variable, or prompt
+DOMAIN="${1:-$DOMAIN}"
 
 if [ -z "$DOMAIN" ]; then
     echo -e "${RED}Error: Domain is required.${NC}"
+    echo ""
+    echo "Usage:"
+    echo "  bash <(curl -fsSL https://raw.githubusercontent.com/kaitwalla/cordless/main/setup-production.sh) chat.example.com"
+    echo ""
+    echo "Or set DOMAIN environment variable:"
+    echo "  DOMAIN=chat.example.com bash <(curl -fsSL https://raw.githubusercontent.com/kaitwalla/cordless/main/setup-production.sh)"
     exit 1
 fi
+
+echo -e "Setting up Cordless for: ${GREEN}$DOMAIN${NC}"
 
 echo ""
 echo "Downloading production files..."
