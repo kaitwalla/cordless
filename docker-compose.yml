@@ -25,6 +25,8 @@ services:
       # Note: LIVEKIT_URL must be accessible from the browser, so use localhost (not the Docker service name)
       - LIVEKIT_URL=${LIVEKIT_URL:-ws://localhost:7880}
     volumes:
+      - .:/rails
+      - /rails/vendor/bundle  # Don't mount over installed gems
       - ${STORAGE_PATH:-./data/storage}:/rails/storage
     depends_on:
       redis:

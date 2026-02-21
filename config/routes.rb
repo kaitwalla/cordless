@@ -62,6 +62,13 @@ Rails.application.routes.draw do
     route_for :user_avatar, user.avatar_token, v: user.updated_at.to_fs(:number)
   end
 
+  namespace :rooms do
+    resources :opens
+    resources :closeds
+    resources :directs
+    resources :call_statuses, only: :index
+  end
+
   resources :rooms do
     resources :messages
 
@@ -75,13 +82,6 @@ Rails.application.routes.draw do
     end
 
     get "@:message_id", to: "rooms#show", as: :at_message
-  end
-
-  namespace :rooms do
-    resources :opens
-    resources :closeds
-    resources :directs
-    resources :call_statuses, only: :index
   end
 
   resources :messages do
