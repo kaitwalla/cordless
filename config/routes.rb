@@ -81,6 +81,7 @@ Rails.application.routes.draw do
     resources :opens
     resources :closeds
     resources :directs
+    resources :call_statuses, only: :index
   end
 
   resources :messages do

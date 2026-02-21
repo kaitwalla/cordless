@@ -9,12 +9,29 @@ export default class extends Controller {
   connect() {
     this.participantCount = 0
     this.isDisconnected = false
+    this.#fetchInitialState()
     this.#subscribeToCallChannel()
   }
 
   disconnect() {
     this.isDisconnected = true
     this.channel?.unsubscribe()
+  }
+
+  async #fetchInitialState() {
+    try {
+      const response = await fetch("/rooms/call_statuses")
+      if (response.ok) {
+        const data = await response.json()
+        const roomData = data[this.roomIdValue]
+        if (roomData) {
+          this.participantCount = roomData.participant_count
+          this.#updateIndicator()
+        }
+      }
+    } catch (error) {
+      console.warn("Failed to fetch call status:", error)
+    }
   }
 
   async #subscribeToCallChannel() {
@@ -32,11 +49,15 @@ export default class extends Controller {
   }
 
   #handleMessage(data) {
-    if (data.type === "call_joined") {
-      this.participantCount++
-      this.#updateIndicator()
-    } else if (data.type === "call_left") {
-      this.participantCount = Math.max(0, this.participantCount - 1)
+    if (data.type === "call_joined" || data.type === "call_left") {
+      // Use server-provided count if available, otherwise increment/decrement
+      if (typeof data.participant_count === "number") {
+        this.participantCount = data.participant_count
+      } else if (data.type === "call_joined") {
+        this.participantCount++
+      } else {
+        this.participantCount = Math.max(0, this.participantCount - 1)
+      }
       this.#updateIndicator()
     }
   }
