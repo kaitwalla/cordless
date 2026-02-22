@@ -11,7 +11,10 @@ export default class extends Controller {
   }
 
   reply() {
-    const content = `<blockquote>${this.#bodyContent}</blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
+    const content = this.#hasAttachment
+      ? this.#attachmentReplyContent
+      : this.#textReplyContent
+
     this.composerOutlet.replaceMessageContent(content)
   }
 
@@ -20,6 +23,31 @@ export default class extends Controller {
       const sameDomain = link.href.startsWith(window.location.origin)
       link.target = sameDomain ? "_top" : "_blank"
     })
+  }
+
+  get #hasAttachment() {
+    return this.bodyTarget.dataset.replyAttachmentName !== undefined
+  }
+
+  get #attachmentReplyContent() {
+    const thumbnailUrl = this.bodyTarget.dataset.replyThumbnailUrl
+    const filename = this.#escapeHtml(this.bodyTarget.dataset.replyAttachmentName)
+
+    if (thumbnailUrl) {
+      return `<blockquote><a href="${this.linkTarget.href}"><img src="${this.#escapeHtml(thumbnailUrl)}" alt="${filename}" class="reply-thumbnail"></a></blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
+    } else {
+      return `<blockquote><a href="${this.linkTarget.href}">${filename}</a></blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
+    }
+  }
+
+  #escapeHtml(text) {
+    const div = document.createElement("div")
+    div.textContent = text
+    return div.innerHTML
+  }
+
+  get #textReplyContent() {
+    return `<blockquote>${this.#bodyContent}</blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
   }
 
   get #bodyContent() {

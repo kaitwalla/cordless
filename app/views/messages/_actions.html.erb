@@ -38,10 +38,10 @@
               data: { controller: "web-share", action: "web-share#share", web_share_files_value: rails_blob_path(message.attachment, only_path: true), web_share_title_value: message.attachment.filename.to_s }, title: "Share", aria: { label: "Share" } do %>
             <%= image_tag "share.svg", class: "colorize--black", size: 20, aria: { hidden: "true" } %>
           <% end %>
-        <% else %>
-          <%= tag.button class: "btn message__action-btn center full-width", data: { action: "reply#reply" }, title: "Reply", aria: { label: "Reply" } do %>
-            <%= image_tag "reply.svg", class: "colorize--black", size: 20, aria: { hidden: "true" } %>
-          <% end %>
+        <% end %>
+
+        <%= tag.button class: "btn message__action-btn center full-width", data: { action: "reply#reply" }, title: "Reply", aria: { label: "Reply" } do %>
+          <%= image_tag "reply.svg", class: "colorize--black", size: 20, aria: { hidden: "true" } %>
         <% end %>
 
         <%= tag.button class: "btn message__action-btn center full-width", title: "Copy link", aria: { label: "Copy link" }, data: { controller: "copy-to-clipboard", action: "copy-to-clipboard#copy", copy_to_clipboard_success_class: "btn--success", copy_to_clipboard_content_value: url } do %>

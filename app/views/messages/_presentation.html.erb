@@ -1,3 +1,11 @@
-<div id="<%= dom_id(message, :presentation) %>" dir="auto" data-reply-target="body" data-messages-target="body">
+<div id="<%= dom_id(message, :presentation) %>" dir="auto" data-reply-target="body" data-messages-target="body"
+  <% if message.content_type.attachment? %>
+    <% if message.attachment.video? %>
+      data-reply-thumbnail-url="<%= url_for(message.attachment.preview(format: :webp)) %>"
+    <% elsif message.attachment.representable? %>
+      data-reply-thumbnail-url="<%= url_for(message.attachment.representation(:thumb)) %>"
+    <% end %>
+    data-reply-attachment-name="<%= message.attachment.filename %>"
+  <% end %>>
   <%= message_presentation(message) %>
 </div>
