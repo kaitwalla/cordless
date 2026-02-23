@@ -1,4 +1,5 @@
 <div id="<%= dom_id(message, :presentation) %>" dir="auto" data-reply-target="body" data-messages-target="body"
+  data-reply-sgid="<%= message.attachable_sgid %>"
   <% if message.content_type.attachment? %>
     <% if message.attachment.video? %>
       data-reply-thumbnail-url="<%= url_for(message.attachment.preview(format: :webp)) %>"

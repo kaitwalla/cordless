@@ -11,11 +11,29 @@ export default class extends Controller {
   }
 
   reply() {
-    const content = this.#hasAttachment
-      ? this.#attachmentReplyContent
-      : this.#textReplyContent
+    if (this.#hasAttachment && this.#hasThumbnail) {
+      this.composerOutlet.replaceWithReplyAttachment(this.#replyAttachmentData)
+    } else {
+      const content = this.#hasAttachment
+        ? this.#attachmentReplyContent
+        : this.#textReplyContent
 
-    this.composerOutlet.replaceMessageContent(content)
+      this.composerOutlet.replaceMessageContent(content)
+    }
+  }
+
+  get #hasThumbnail() {
+    return this.bodyTarget.dataset.replyThumbnailUrl !== undefined
+  }
+
+  get #replyAttachmentData() {
+    return {
+      sgid: this.bodyTarget.dataset.replySgid,
+      thumbnailUrl: this.bodyTarget.dataset.replyThumbnailUrl,
+      filename: this.bodyTarget.dataset.replyAttachmentName,
+      author: this.authorTarget.textContent,
+      href: this.linkTarget.href
+    }
   }
 
   #formatLinkTargets() {
@@ -30,14 +48,8 @@ export default class extends Controller {
   }
 
   get #attachmentReplyContent() {
-    const thumbnailUrl = this.bodyTarget.dataset.replyThumbnailUrl
     const filename = this.#escapeHtml(this.bodyTarget.dataset.replyAttachmentName)
-
-    if (thumbnailUrl) {
-      return `<blockquote><a href="${this.linkTarget.href}"><img src="${this.#escapeHtml(thumbnailUrl)}" alt="${filename}" class="reply-thumbnail"></a></blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
-    } else {
-      return `<blockquote><a href="${this.linkTarget.href}">${filename}</a></blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
-    }
+    return `<blockquote><a href="${this.linkTarget.href}">${filename}</a></blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
   }
 
   #escapeHtml(text) {
