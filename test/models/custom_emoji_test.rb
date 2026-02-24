@@ -45,7 +45,7 @@ class CustomEmojiTest < ActiveSupport::TestCase
 
   test "shortcode format validation" do
     valid_shortcodes = %w[happy smile_face party-time cool123]
-    invalid_shortcodes = ["UPPERCASE", "with spaces", "special!", "unicode🎉"]
+    invalid_shortcodes = [ "UPPERCASE", "with spaces", "special!", "unicode🎉" ]
 
     valid_shortcodes.each do |shortcode|
       emoji = CustomEmoji.new(shortcode: shortcode, creator: @user)

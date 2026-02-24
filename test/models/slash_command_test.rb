@@ -59,7 +59,7 @@ class SlashCommandTest < ActiveSupport::TestCase
 
   test "name format validation" do
     valid_names = %w[shrug tableflip my_command cmd123]
-    invalid_names = ["UPPERCASE", "with-dash", "with spaces", "special!"]
+    invalid_names = [ "UPPERCASE", "with-dash", "with spaces", "special!" ]
 
     valid_names.each do |name|
       command = SlashCommand.new(name: name, description: "test")
