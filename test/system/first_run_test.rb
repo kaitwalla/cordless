@@ -4,10 +4,18 @@ class FirstRunTest < ApplicationSystemTestCase
   setup do
     # Clear existing data to simulate first run
     # Order matters due to foreign key constraints
+    Boost.delete_all
+    Search.delete_all
     Membership.delete_all
     Message.delete_all
     Room.delete_all
+    Ban.delete_all
+    Push::Subscription.delete_all
+    Webhook.delete_all
     Session.delete_all
+    SlashCommand.delete_all
+    CustomEmoji.delete_all
+    Export.delete_all
     User.delete_all
     Account.delete_all
   end
