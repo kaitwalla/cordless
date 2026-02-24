@@ -13,8 +13,8 @@ class DirectMessagesTest < ApplicationSystemTestCase
   end
 
   test "direct messages show participant names" do
-    sign_in "kevin@37signals.com"
-    join_room rooms(:david_and_kevin)
+    # Visit an existing direct message room
+    join_room rooms(:david_and_jz)
 
     # Direct room should show the other participant's name
     assert_selector "h1", text: "David"

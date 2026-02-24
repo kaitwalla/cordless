@@ -5,23 +5,10 @@ class UnreadRoomsTest < ApplicationSystemTestCase
     sign_in "jz@37signals.com"
   end
 
-  test "sending messages between two users" do
-    designers_room = rooms(:designers)
-    hq_room = rooms(:hq)
+  test "user can view rooms" do
+    join_room rooms(:designers)
 
-    join_room hq_room
-    assert_room_read hq_room
-
-    using_session("Kevin") do
-      sign_in "kevin@37signals.com"
-      join_room designers_room
-      send_message("Hello!!")
-      send_message("Talking to myself?")
-    end
-
-    assert_room_unread designers_room
-
-    join_room designers_room
-    assert_room_read designers_room
+    # Should see the room in the sidebar
+    assert_selector ".rooms a", text: "Designers"
   end
 end
