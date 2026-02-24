@@ -1,0 +1,53 @@
+<h1 class="for-screen-reader">Slash Command Setup</h1>
+
+<% if slash_command.errors.any? %>
+  <div class="fill-negative pad border-radius">
+    <ul class="margin-none">
+      <% slash_command.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<div class="flex align-center gap">
+  <label class="flex align-center gap flex-item-grow txt-large input input--actor">
+    <span class="txt-subtle">/</span>
+    <%= form.text_field :name, class: "input", autocomplete: "off", placeholder: "command",
+          autofocus: true, required: true, pattern: "[a-z0-9_]+",
+          title: "Lowercase letters, numbers, and underscores only" %>
+  </label>
+</div>
+
+<div class="flex align-center gap">
+  <label class="flex align-center gap flex-item-grow input input--actor">
+    <%= form.text_field :description, class: "input", placeholder: "Description", required: true %>
+  </label>
+</div>
+
+<div class="flex align-center gap">
+  <label class="flex align-center gap flex-item-grow input input--actor">
+    <%= form.text_field :usage_hint, class: "input", placeholder: "Usage hint (e.g., /command [arg])" %>
+  </label>
+</div>
+
+<% if @bots.any? %>
+  <div class="flex align-center gap">
+    <label class="flex align-center gap flex-item-grow input input--actor">
+      <%= form.collection_select :bot_id, @bots, :id, :name,
+            { prompt: "Select a bot to trigger", include_blank: false },
+            { class: "input", required: true } %>
+    </label>
+  </div>
+<% else %>
+  <div class="fill-shade pad border-radius txt-subtle">
+    No bots available. <%= link_to "Create a bot", new_account_bot_path %> first to create webhook commands.
+  </div>
+<% end %>
+
+<%= form.hidden_field :command_type, value: "webhook" %>
+
+<%= form.button class: "btn btn--reversed center", type: "submit" do %>
+  <%= image_tag "check.svg", aria: { hidden: "true" }, size: 20 %>
+  Save command
+<% end %>

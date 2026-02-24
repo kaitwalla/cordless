@@ -19,6 +19,8 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :slash_commands
+
       resource :join_code, only: :create
       resource :logo, only: %i[ show destroy ]
       resource :custom_styles, only: %i[ edit update ]
@@ -54,8 +56,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :custom_emojis, only: %i[index new create destroy]
+
   namespace :autocompletable do
     resources :users, only: :index
+    resources :emojis, only: :index
+    resources :commands, only: :index
   end
 
   direct :fresh_user_avatar do |user, options|

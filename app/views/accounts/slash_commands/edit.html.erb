@@ -1,0 +1,13 @@
+<% @page_title = "Edit slash command" %>
+
+<% content_for :nav do %>
+  <div class="flex-item-justify-start">
+    <%= link_back_to account_slash_commands_path %>
+  </div>
+<% end %>
+
+<section class="panel">
+  <%= form_with model: [:account, @slash_command], class: "flex flex-column gap" do |form| %>
+    <%= render "form", form: form, slash_command: @slash_command %>
+  <% end %>
+</section>

@@ -12,8 +12,8 @@ class Webhook < ApplicationRecord
   validate :url_is_valid_uri
   validate :url_is_not_private
 
-  def deliver(message)
-    response = post(payload(message))
+  def deliver(message, command: nil, args: nil)
+    response = post(payload(message, command: command, args: args))
 
     if response.body && response.body.bytesize > MAX_RESPONSE_SIZE
       Rails.logger.warn "Webhook response too large: #{url} (#{response.body.bytesize} bytes)"
@@ -28,6 +28,10 @@ class Webhook < ApplicationRecord
     end
 
     response
+  end
+
+  def deliver_command(message, command, args)
+    deliver(message, command: command, args: args)
   rescue Net::OpenTimeout, Net::ReadTimeout => e
     Rails.logger.warn "Webhook timeout: #{url} (#{e.class})"
     receive_text_reply_to message.room, text: "Failed to respond (timeout)"
@@ -101,12 +105,18 @@ class Webhook < ApplicationRecord
       @uri ||= URI.parse(url)
     end
 
-    def payload(message)
-      {
+    def payload(message, command: nil, args: nil)
+      data = {
         user:    { id: message.creator.id, name: message.creator.name },
         room:    { id: message.room.id, name: message.room.name, path: room_bot_messages_path(message) },
         message: { id: message.id, body: { html: message.body.body, plain: without_recipient_mentions(message.plain_text_body) }, path: message_path(message) }
-      }.to_json
+      }
+
+      if command
+        data[:command] = { name: command.name, args: args }
+      end
+
+      data.to_json
     end
 
     def message_path(message)

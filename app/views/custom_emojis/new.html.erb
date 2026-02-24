@@ -1,0 +1,56 @@
+<% @page_title = "New custom emoji" %>
+
+<% content_for :nav do %>
+  <div class="flex-item-justify-start">
+    <%= link_back_to custom_emojis_path %>
+  </div>
+<% end %>
+
+<section class="panel">
+  <%= form_with model: @custom_emoji, url: custom_emojis_path, class: "flex flex-column gap" do |form| %>
+    <h1 class="for-screen-reader">New custom emoji</h1>
+
+    <% if @custom_emoji.errors.any? %>
+      <div class="fill-negative pad border-radius">
+        <ul class="margin-none">
+          <% @custom_emoji.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <label class="align-center center avatar__form gap" data-controller="upload-preview">
+      <div class="btn input--file">
+        <%= image_tag "camera.svg", aria: { hidden: "true" }, size: 20 %>
+        <%= form.file_field :image, class: "input", accept: "image/*",
+              data: { upload_preview_target: "input", action: "upload-preview#previewImage" }, required: true %>
+        <span class="for-screen-reader">Upload emoji image</span>
+      </div>
+
+      <div class="avatar input--file txt-xx-large" style="--avatar-size: var(--btn-size);">
+        <%= image_tag "default-emoji.svg", alt: "Emoji preview", size: 48, data: { upload_preview_target: "image" } %>
+      </div>
+    </label>
+
+    <div class="flex align-center gap">
+      <label class="flex align-center gap flex-item-grow txt-large input input--actor">
+        <span class="txt-subtle">:</span>
+        <%= form.text_field :shortcode, class: "input", autocomplete: "off", placeholder: "shortcode",
+              autofocus: true, required: true, pattern: "[a-z0-9_-]+",
+              title: "Lowercase letters, numbers, underscores, and hyphens only" %>
+        <span class="txt-subtle">:</span>
+      </label>
+    </div>
+
+    <p class="txt-small txt-subtle margin-none">
+      Shortcode can only contain lowercase letters, numbers, underscores, and hyphens.
+      Recommended image size: 128x128 pixels. Animated GIFs are supported.
+    </p>
+
+    <%= form.button class: "btn btn--reversed center", type: "submit" do %>
+      <%= image_tag "check.svg", aria: { hidden: "true" }, size: 20 %>
+      Create emoji
+    <% end %>
+  <% end %>
+</section>

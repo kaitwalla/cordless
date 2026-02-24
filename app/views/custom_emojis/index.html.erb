@@ -1,0 +1,45 @@
+<% @page_title = "Custom emojis" %>
+
+<% content_for :nav do %>
+  <div class="flex-item-justify-start">
+    <%= link_back_to_last_room_visited %>
+  </div>
+<% end %>
+
+<section class="panel panel--wide txt-align-center flex flex-column position-relative" style="view-transition-name: custom-emojis">
+  <div class="flex align-center gap">
+    <div class="pad-inline-double center">
+      <h1 class="margin-none">Custom emojis</h1>
+      <p class="margin-none-block-start">Upload custom emojis for everyone to use in messages.</p>
+
+      <%= link_to new_custom_emoji_path, class: "btn btn--reversed txt-large", aria: { label: "Add a custom emoji" } do %>
+        <%= image_tag "add.svg", aria: { hidden: "true" }, size: 20 %>
+        Add emoji
+      <% end %>
+    </div>
+  </div>
+
+  <div class="pad-inline pad-block-start">
+    <% if @custom_emojis.any? %>
+      <menu class="flex flex-wrap gap margin-none pad justify-center">
+        <% @custom_emojis.each do |emoji| %>
+          <div class="custom-emoji-item flex flex-column align-center gap pad fill-shade border-radius">
+            <div class="custom-emoji-preview">
+              <%= image_tag url_for(emoji.image), alt: ":#{emoji.shortcode}:", class: "custom-emoji__image--large" %>
+            </div>
+            <code class="txt-small">:<%= emoji.shortcode %>:</code>
+            <% if Current.user.can_administer? %>
+              <%= button_to custom_emoji_path(emoji), method: :delete, class: "btn btn--negative txt-small",
+                    aria: { label: "Delete :#{emoji.shortcode}:" },
+                    data: { confirm: "Delete :#{emoji.shortcode}:?" } do %>
+                <%= image_tag "minus.svg", aria: { hidden: "true" }, size: 16 %>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </menu>
+    <% else %>
+      <p class="txt-subtle">No custom emojis yet. Add one to get started.</p>
+    <% end %>
+  </div>
+</section>

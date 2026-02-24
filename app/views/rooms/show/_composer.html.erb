@@ -26,7 +26,9 @@
                           controller: "rich-autocomplete",
                           action: rich_text_data_actions,
                           rich_autocomplete_url_value: autocompletable_users_path(room_id: room.id),
-                          permitted_attachment_types: "application/vnd.actiontext.opengraph-embed",
+                          rich_autocomplete_emojis_url_value: autocompletable_emojis_path,
+                          rich_autocomplete_commands_url_value: autocompletable_commands_path,
+                          permitted_attachment_types: "application/vnd.actiontext.opengraph-embed application/vnd.cordless.custom-emoji",
                           composer_target: "text" } %>
                 </div>
 

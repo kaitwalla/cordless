@@ -58,6 +58,10 @@ module User::Bot
     webhook.deliver(message)
   end
 
+  def deliver_webhook_for_command(message, command, args)
+    Bot::CommandWebhookJob.perform_later(self, message, command, args) if webhook
+  end
+
 
   private
     def update_webhook_url!(url)

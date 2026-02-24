@@ -12,6 +12,11 @@
         <span class="for-screen-reader">Set up chat bots</span>
       <% end %>
 
+      <%= link_to account_slash_commands_path, class: "btn", style: "view-transition-name: slash-commands" do %>
+        <%= image_tag "text-options.svg", aria: { hidden: "true" }, size: 20 %>
+        <span class="for-screen-reader">Slash commands</span>
+      <% end %>
+
       <%= link_to edit_account_custom_styles_path, class: "btn", style: "view-transition-name: custom-styles" do %>
         <%= image_tag "art.svg", size: 20, aria: { hidden: "true" } %>
         <span class="for-screen-reader">Custom styles</span>

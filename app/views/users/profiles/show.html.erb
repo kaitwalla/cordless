@@ -107,6 +107,12 @@
 
   <%= render "users/profiles/transfer", user: @user %>
 
+  <div class="margin-block pad-inline pad-block fill-shade border-radius txt-align-center">
+    <%= link_to custom_emojis_path, class: "btn center" do %>
+      Custom emojis
+    <% end %>
+  </div>
+
   <% if Rails.env.development? %>
     <fieldset>
       <legend>

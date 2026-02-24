@@ -24,7 +24,12 @@ class MessagesController < ApplicationController
     @message = @room.messages.create_with_attachment!(message_params)
 
     @message.broadcast_create
-    deliver_webhooks_to_bots
+
+    if command = detect_slash_command(@message)
+      execute_slash_command(command, @message)
+    else
+      deliver_webhooks_to_bots
+    end
   rescue ActiveRecord::RecordNotFound
     render action: :room_not_found
   end
@@ -80,5 +85,19 @@ class MessagesController < ApplicationController
 
     def bots_eligible_for_webhook
       @room.direct? ? @room.users.active_bots : @message.mentionees.active_bots
+    end
+
+
+    def detect_slash_command(message)
+      plain_text = message.plain_text_body.to_s.strip
+      return unless plain_text.start_with?("/")
+
+      match = plain_text.match(/\A\/([a-z0-9_]+)/)
+      SlashCommand.find_by(name: match[1]) if match
+    end
+
+    def execute_slash_command(command, message)
+      args = message.plain_text_body.to_s.strip.sub(/\A\/[a-z0-9_]+\s*/, "")
+      command.execute(message: message, args: args, room: @room, user: Current.user)
     end
 end

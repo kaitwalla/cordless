@@ -1,0 +1,56 @@
+<% @page_title = "Slash commands" %>
+
+<% content_for :nav do %>
+  <div class="flex-item-justify-start">
+    <%= link_back_to edit_account_path %>
+  </div>
+<% end %>
+
+<section class="panel panel--wide txt-align-center flex flex-column position-relative" style="view-transition-name: slash-commands">
+  <div class="flex align-center gap">
+    <div class="pad-inline-double center">
+      <h1 class="margin-none">Slash commands</h1>
+      <p class="margin-none-block-start">Create custom commands that trigger bot webhooks.</p>
+
+      <%= link_to new_account_slash_command_path, class: "btn btn--reversed txt-large", aria: { label: "Add a slash command" } do %>
+        <%= image_tag "add.svg", aria: { hidden: "true" }, size: 20 %>
+        Add command
+      <% end %>
+    </div>
+  </div>
+
+  <div class="pad-inline pad-block-start">
+    <% if @slash_commands.any? %>
+      <menu class="flex flex-column gap margin-none pad">
+        <% @slash_commands.each do |command| %>
+          <div class="flex align-center gap pad fill-shade border-radius">
+            <div class="flex-item-grow txt-align-start">
+              <div class="txt-large"><code>/<%= command.name %></code></div>
+              <div class="txt-subtle"><%= command.description %></div>
+              <% if command.webhook? && command.bot %>
+                <div class="txt-small txt-subtle">Triggers: <%= command.bot.name %></div>
+              <% elsif command.builtin? %>
+                <div class="txt-small txt-subtle">Built-in command</div>
+              <% end %>
+            </div>
+            <% unless command.builtin? %>
+              <div class="flex gap">
+                <%= link_to edit_account_slash_command_path(command), class: "btn",
+                      aria: { label: "Edit /#{command.name}" } do %>
+                  <%= image_tag "pencil.svg", aria: { hidden: "true" }, size: 20 %>
+                <% end %>
+                <%= button_to account_slash_command_path(command), method: :delete, class: "btn btn--negative",
+                      aria: { label: "Delete /#{command.name}" },
+                      data: { confirm: "Delete /#{command.name}?" } do %>
+                  <%= image_tag "minus.svg", aria: { hidden: "true" }, size: 20 %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </menu>
+    <% else %>
+      <p class="txt-subtle">No slash commands yet. Add one to get started.</p>
+    <% end %>
+  </div>
+</section>
