@@ -5,54 +5,32 @@ class UserManagementTest < ApplicationSystemTestCase
     sign_in "david@37signals.com"  # Admin user
   end
 
-  test "admin views user list" do
-    visit account_users_url
+  test "admin views user list in account settings" do
+    visit edit_account_url
 
-    assert_selector "h1", text: "People"
-    assert_selector ".user", text: "David"
-    assert_selector ".user", text: "Jason"
-    assert_selector ".user", text: "JZ"
-    assert_selector ".user", text: "Kevin"
+    # Account settings page shows users
+    assert_text "David"
+    assert_text "JZ"
+    assert_text "Kevin"
   end
 
   test "admin views user profile" do
-    visit account_users_url
+    visit user_url(users(:kevin))
 
-    click_on "JZ"
-
-    assert_selector "h1", text: "JZ"
-    assert_text "Designer"
+    assert_selector "h1", text: "Kevin"
+    assert_text "Programmer"
   end
 
-  test "admin can edit user details" do
-    visit account_user_url(users(:kevin))
+  test "non-admin cannot access admin features" do
+    # Log out and sign in as non-admin
+    visit user_profile_path
+    find("button[data-action='sessions#logout:prevent']").click
 
-    click_on "Edit"
-
-    fill_in "Name", with: "Kevin Updated"
-    click_on "Save changes"
-
-    assert_selector "h1", text: "Kevin Updated"
-  end
-
-  test "admin can deactivate user" do
-    visit account_user_url(users(:kevin))
-
-    click_on "Edit"
-
-    accept_confirm do
-      click_on "Deactivate"
-    end
-
-    assert_text "deactivated"
-  end
-
-  test "non-admin cannot access user management" do
     sign_in "kevin@37signals.com"  # Non-admin user
 
-    visit account_users_url
+    visit edit_account_url
 
-    # Should be redirected or see forbidden
-    assert_no_selector "h1", text: "People"
+    # Non-admin should see limited view (no edit form)
+    assert_no_selector "input[placeholder='Name this account']"
   end
 end

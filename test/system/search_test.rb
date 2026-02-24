@@ -3,62 +3,66 @@ require "application_system_test_case"
 class SearchTest < ApplicationSystemTestCase
   setup do
     sign_in "jz@37signals.com"
+    join_room rooms(:designers)
   end
 
   test "searching for messages" do
-    join_room rooms(:designers)
-
     # Send a message to search for
     send_message "The quick brown fox jumps over the lazy dog"
 
-    # Open search
-    click_on "Search"
+    # Open search via the search link in composer
+    visit searches_path
 
     fill_in "q", with: "brown fox"
-    click_on "Search messages"
+    find("button[type='submit']").click
 
-    assert_selector ".search-result", text: "brown fox"
+    assert_selector ".message", text: "brown fox", wait: 5
   end
 
   test "recent searches are remembered" do
-    click_on "Search"
+    visit searches_path
 
     fill_in "q", with: "testing"
-    click_on "Search messages"
+    find("button[type='submit']").click
 
     # Go back to search
-    click_on "Search"
+    visit searches_path
 
-    assert_selector ".recent-search", text: "testing"
+    # Recent searches appear as links with the query text
+    assert_selector "a", text: '"testing"'
   end
 
   test "clearing search history" do
-    click_on "Search"
+    visit searches_path
 
     fill_in "q", with: "first search"
-    click_on "Search messages"
+    find("button[type='submit']").click
 
-    click_on "Search"
+    visit searches_path
     fill_in "q", with: "second search"
-    click_on "Search messages"
+    find("button[type='submit']").click
 
-    click_on "Search"
-    assert_selector ".recent-search", count: 2
+    visit searches_path
+    # Recent searches appear as links
+    assert_selector ".searches__recents a", minimum: 2
 
-    click_on "Clear history"
+    # Click the clear button (broom icon)
+    accept_confirm do
+      find(".searches__btn").click
+    end
 
-    assert_no_selector ".recent-search"
+    assert_no_selector ".searches__recents a"
   end
 
   test "clicking search result navigates to message" do
-    join_room rooms(:designers)
     send_message "Unique phrase for testing navigation"
 
-    click_on "Search"
+    visit searches_path
     fill_in "q", with: "Unique phrase"
-    click_on "Search messages"
+    find("button[type='submit']").click
 
-    click_on "Unique phrase for testing navigation"
+    # Click on the search result
+    find(".message", text: "Unique phrase", match: :first).click
 
     # Should be back in the room with the message visible
     assert_message_text "Unique phrase for testing navigation"

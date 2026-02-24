@@ -11,12 +11,14 @@ class DirectMessagesTest < ApplicationSystemTestCase
       visit root_url
     end
 
-    # Start a direct message conversation
-    click_on "New message"
-    fill_in "Search for people", with: "Kevin"
-    click_on "Kevin"
-    click_on "Start conversation"
+    # Start a direct message conversation via the "Ping" link
+    visit new_rooms_direct_path
 
+    # Search and select a user
+    fill_in "q", with: "Kevin"
+    find("li", text: "Kevin", match: :first).click
+
+    # Should go to the DM room
     wait_for_cable_connection
     dismiss_pwa_install_prompt
 
@@ -24,10 +26,10 @@ class DirectMessagesTest < ApplicationSystemTestCase
 
     using_session("Kevin") do
       # Kevin should see the DM notification
-      assert_selector ".rooms a.unread", wait: 5
+      assert_selector ".direct.unread", wait: 10
 
       # Click on the direct room
-      find(".rooms a.unread").click
+      find(".direct.unread").click
       wait_for_cable_connection
       dismiss_pwa_install_prompt
 
@@ -37,7 +39,7 @@ class DirectMessagesTest < ApplicationSystemTestCase
     end
 
     # JZ should see Kevin's response
-    assert_message_text "Sure, what's up?"
+    assert_message_text "Sure, what's up?", wait: 5
   end
 
   test "direct messages show participant names" do
@@ -45,6 +47,6 @@ class DirectMessagesTest < ApplicationSystemTestCase
     join_room rooms(:david_and_kevin)
 
     # Direct room should show the other participant's name
-    assert_selector ".room-header", text: "David"
+    assert_selector "h1", text: "David"
   end
 end

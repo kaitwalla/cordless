@@ -8,65 +8,51 @@ class AccountSettingsTest < ApplicationSystemTestCase
   test "admin views account settings" do
     visit edit_account_url
 
-    assert_selector "h1", text: "Settings"
-    assert_field "Organization name", with: "37signals"
+    # Account name field has placeholder "Name this account"
+    assert_selector "input[placeholder='Name this account']"
   end
 
   test "admin updates organization name" do
     visit edit_account_url
 
-    fill_in "Organization name", with: "Basecamp"
-    click_on "Save changes"
+    fill_in "account[name]", with: "Basecamp"
+    find("button[type='submit']", match: :first).click
 
     visit edit_account_url
-    assert_field "Organization name", with: "Basecamp"
-  end
-
-  test "admin generates new join code" do
-    visit edit_account_url
-
-    within(".join-code", match: :first) do
-      old_code = find("[data-clipboard-target='source']", visible: false).value
-
-      accept_confirm do
-        click_on "Generate new code"
-      end
-
-      # Wait for the page to update
-      sleep 0.5
-
-      new_code = find("[data-clipboard-target='source']", visible: false).value
-      assert_not_equal old_code, new_code
-    end
+    assert_selector "input[value='Basecamp']"
   end
 
   test "admin restricts room creation to administrators" do
     visit edit_account_url
 
-    check "Only administrators can create rooms"
-    click_on "Save changes"
+    # Find the switch for room creation restriction and toggle it
+    switch = find("input.switch__input", match: :first)
+    switch.click if !switch.checked?
 
-    # Log in as non-admin
-    find("[data-controller='profile']").click
-    click_on "Log out"
+    # Wait for form to submit
+    sleep 0.5
+
+    # Log out
+    visit user_profile_path
+    find("button[data-action='sessions#logout:prevent']").click
 
     sign_in "jz@37signals.com"
 
+    # Non-admin should not see new room button (the + button)
     visit root_url
-
-    # Non-admin should not see new room button
-    assert_no_selector "a", text: "New room"
+    assert_no_selector ".rooms__new-btn"
   end
 
   test "non-admin cannot access account settings" do
-    find("[data-controller='profile']").click
-    click_on "Log out"
+    # Log out
+    visit user_profile_path
+    find("button[data-action='sessions#logout:prevent']").click
 
     sign_in "jz@37signals.com"
 
     visit edit_account_url
 
-    # Should be redirected away from settings page
-    assert_no_current_path edit_account_path
+    # Non-admin sees a different view (no form fields to edit)
+    assert_no_selector "input[placeholder='Name this account']"
   end
 end

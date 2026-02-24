@@ -18,7 +18,8 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "password", with: "wrongpassword"
     click_on "log_in"
 
-    assert_text "Try another email address or password"
+    # Login failure adds "shake" class to the panel
+    assert_selector ".panel.shake"
   end
 
   test "user fails to log in with invalid email" do
@@ -28,14 +29,15 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "password", with: "secret123456"
     click_on "log_in"
 
-    assert_text "Try another email address or password"
+    # Login failure adds "shake" class to the panel
+    assert_selector ".panel.shake"
   end
 
   test "user logs out" do
     sign_in "jz@37signals.com"
 
-    find("[data-controller='profile']").click
-    click_on "Log out"
+    visit user_profile_path
+    find("button[data-action='sessions#logout:prevent']").click
 
     assert_selector "input[name='email_address']"
   end
