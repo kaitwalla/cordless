@@ -93,6 +93,30 @@
 
       <% end %>
     </div>
+
+    <div class="pad-block pad-inline-double fill-shade border-radius">
+      <%= form_with model: @account, method: :put, data: { controller: "form" }, class: "flex align-center gap center" do |form| %>
+        <div class="flex-item-grow flex align-center gap txt-align-start">
+          <%= image_tag "messages-outlined.svg", class: "colorize--black", aria: { hidden: "true" }, size: 18 %> Enable anonymous confessions
+        </div>
+        <%= form.fields_for :settings, @account.settings do |settings_form| %>
+          <%= settings_form.hidden_field :anonymous_confessions_enabled,
+              value: !Current.account.settings.anonymous_confessions_enabled? %>
+        <% end %>
+
+        <label class="switch">
+          <input type="checkbox"
+                class="switch__input"
+                <%= "checked" if Current.account.settings.anonymous_confessions_enabled? %>
+                data-action="change->form#submit">
+          <span class="switch__btn round"></span>
+          <span class="for-screen-reader">
+            Enable anonymous confessions
+          </span>
+        </label>
+
+      <% end %>
+    </div>
   <% else %>
     <%= account_logo_tag style: "txt-xx-large center" %>
     <h1 class="flex-item-grow txt-x-large"><%= @account.name %></h1>

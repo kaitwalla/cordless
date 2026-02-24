@@ -6,7 +6,18 @@ set -e
 if [ "$(id -u)" = "0" ]; then
   mkdir -p /rails/storage/db
   chown -R rails:rails /rails/storage
-  exec gosu rails "$@"
-else
-  exec "$@"
+  exec gosu rails "$0" "$@"
 fi
+
+# Run database migrations and seeds (as rails user)
+# db:prepare creates the database if needed and runs pending migrations
+# db:seed is idempotent (uses find_or_create_by!) so safe to run every time
+if [ "${1}" = "bin/boot" ] || [ "${1}" = "./bin/boot" ]; then
+  echo "Preparing database..."
+  bin/rails db:prepare
+  echo "Running seeds..."
+  bin/rails db:seed
+  echo "Database ready!"
+fi
+
+exec "$@"

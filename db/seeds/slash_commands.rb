@@ -19,4 +19,10 @@ SlashCommand.find_or_create_by!(name: "giphy") do |cmd|
   cmd.command_type = :builtin
 end
 
+SlashCommand.find_or_create_by!(name: "confess") do |cmd|
+  cmd.description = "Post an anonymous message to the confessions channel"
+  cmd.usage_hint = "/confess [message]"
+  cmd.command_type = :builtin
+end
+
 puts "Created #{SlashCommand.count} slash commands"
