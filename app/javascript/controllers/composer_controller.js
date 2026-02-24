@@ -133,14 +133,21 @@ export default class extends Controller {
   async #submitMessage() {
     if (this.#validInput()) {
       const clientMessageId = this.#generateClientId()
+      const isSlashCommand = this.#isSlashCommand()
 
-      await this.messagesOutlet.insertPendingMessage(clientMessageId, this.textTarget)
-      await nextFrame()
+      if (!isSlashCommand) {
+        await this.messagesOutlet.insertPendingMessage(clientMessageId, this.textTarget)
+        await nextFrame()
+      }
 
       this.clientidTarget.value = clientMessageId
       this.element.requestSubmit()
       this.#reset()
     }
+  }
+
+  #isSlashCommand() {
+    return this.textTarget.textContent.trim().startsWith("/")
   }
 
   #validInput() {
