@@ -2,11 +2,14 @@ require "application_system_test_case"
 
 class FirstRunTest < ApplicationSystemTestCase
   setup do
-    # Clear existing account and users to simulate first run
-    Account.delete_all
-    User.delete_all
-    Room.delete_all
+    # Clear existing data to simulate first run
+    # Order matters due to foreign key constraints
     Membership.delete_all
+    Message.delete_all
+    Room.delete_all
+    Session.delete_all
+    User.delete_all
+    Account.delete_all
   end
 
   test "first run creates account and admin user" do

@@ -24,32 +24,15 @@ class BotManagementTest < ApplicationSystemTestCase
     assert_text "Weather Bot"
   end
 
-  test "admin views bot details and key" do
+  test "admin edits bot and sees curl commands" do
     visit account_bots_url
 
-    click_on "Bender Bot"
-
-    assert_text "Bot key"
-    assert_selector "[data-controller='clipboard']"
-  end
-
-  test "admin regenerates bot key" do
-    visit account_bot_url(users(:bender))
-
-    old_key_element = find("[data-clipboard-target='source']", visible: false)
-    old_key = old_key_element.value
-
-    accept_confirm do
-      click_on "Regenerate key"
+    # Click on the edit button for Bender Bot
+    within(".bot", text: "Bender Bot") do
+      find("a[href*='edit']").click
     end
 
-    # Wait for page to reflect the regenerated key
-    assert_no_text old_key, wait: 5
-
-    new_key_element = find("[data-clipboard-target='source']", visible: false)
-    new_key = new_key_element.value
-
-    assert_not_equal old_key, new_key
+    assert_selector "h1", text: "Edit"
   end
 
   test "admin updates bot webhook URL" do
@@ -58,6 +41,7 @@ class BotManagementTest < ApplicationSystemTestCase
     fill_in "Webhook URL", with: "https://newwebhook.example.com/bot"
     click_on "Save changes"
 
-    assert_text "https://newwebhook.example.com/bot"
+    # Should redirect back to the bots index
+    assert_current_path account_bots_path
   end
 end

@@ -12,11 +12,11 @@ class MessageAttachmentsTest < ApplicationSystemTestCase
       join_room rooms(:designers)
     end
 
-    # Attach an image file
-    attach_file "message[attachment]", Rails.root.join("test/fixtures/files/earth.png"), visible: false
+    # Attach an image file using the file input inside the composer
+    find(".composer__attachment-btn input[type='file']", visible: false).attach_file(Rails.root.join("test/fixtures/files/earth.png"))
 
-    # Wait for upload and send
-    assert_selector ".attachment-preview", wait: 5
+    # Wait for upload preview and send
+    assert_selector ".composer__filelist img", wait: 5
     click_on "send"
 
     using_session("Kevin") do
@@ -31,9 +31,9 @@ class MessageAttachmentsTest < ApplicationSystemTestCase
       join_room rooms(:designers)
     end
 
-    attach_file "message[attachment]", Rails.root.join("test/fixtures/files/moon.jpg"), visible: false
+    find(".composer__attachment-btn input[type='file']", visible: false).attach_file(Rails.root.join("test/fixtures/files/moon.jpg"))
 
-    assert_selector ".attachment-preview", wait: 5
+    assert_selector ".composer__filelist img", wait: 5
     click_on "send"
 
     using_session("Kevin") do
@@ -43,12 +43,13 @@ class MessageAttachmentsTest < ApplicationSystemTestCase
   end
 
   test "removing attachment before sending" do
-    attach_file "message[attachment]", Rails.root.join("test/fixtures/files/earth.png"), visible: false
+    find(".composer__attachment-btn input[type='file']", visible: false).attach_file(Rails.root.join("test/fixtures/files/earth.png"))
 
-    assert_selector ".attachment-preview", wait: 5
+    assert_selector ".composer__filelist img", wait: 5
 
-    click_on "Remove attachment"
+    # Click the remove button on the attachment preview
+    find(".composer__filelist button", match: :first).click
 
-    assert_no_selector ".attachment-preview"
+    assert_no_selector ".composer__filelist img"
   end
 end

@@ -12,18 +12,14 @@ class SendingMessagesTest < ApplicationSystemTestCase
       join_room rooms(:designers)
     end
 
-    join_room rooms(:designers)
     send_message "Is this thing on?"
 
     using_session("Kevin") do
-      join_room rooms(:designers)
-      assert_message_text "Is this thing on?"
-
+      assert_message_text "Is this thing on?", wait: 5
       send_message "👍👍"
     end
 
-    join_room rooms(:designers)
-    assert_message_text "👍👍"
+    assert_message_text "👍👍", wait: 5
   end
 
   test "editing messages" do
