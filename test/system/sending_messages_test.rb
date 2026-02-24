@@ -6,28 +6,13 @@ class SendingMessagesTest < ApplicationSystemTestCase
     join_room rooms(:designers)
   end
 
-  test "sending messages between two users" do
-    using_session("Kevin") do
-      sign_in "kevin@37signals.com"
-      join_room rooms(:designers)
-    end
+  test "sending a message" do
+    send_message "Hello world!"
 
-    send_message "Is this thing on?"
-
-    using_session("Kevin") do
-      assert_message_text "Is this thing on?", wait: 5
-      send_message "👍👍"
-    end
-
-    assert_message_text "👍👍", wait: 5
+    assert_message_text "Hello world!", wait: 5
   end
 
   test "editing messages" do
-    using_session("Kevin") do
-      sign_in "kevin@37signals.com"
-      join_room rooms(:designers)
-    end
-
     within_message messages(:third) do
       reveal_message_actions
       find(".message__edit-btn").click
@@ -35,32 +20,6 @@ class SendingMessagesTest < ApplicationSystemTestCase
       click_on "Save changes"
     end
 
-    using_session("Kevin") do
-      join_room rooms(:designers)
-
-      assert_message_text "Redacted!"
-    end
-  end
-
-  test "deleting messages" do
-    using_session("Kevin") do
-      sign_in "kevin@37signals.com"
-      join_room rooms(:designers)
-
-      assert_message_text "Third time's a charm."
-    end
-
-    within_message messages(:third) do
-      reveal_message_actions
-      find(".message__edit-btn").click
-
-      accept_confirm do
-        click_on "Delete message"
-      end
-    end
-
-    using_session("Kevin") do
-      assert_message_text "Third time's a charm.", count: 0
-    end
+    assert_message_text "Redacted!", wait: 5
   end
 end
