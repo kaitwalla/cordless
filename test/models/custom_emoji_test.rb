@@ -1,6 +1,7 @@
 require "test_helper"
 
 class CustomEmojiTest < ActiveSupport::TestCase
+  include ActionDispatch::TestProcess::FixtureFile
   setup do
     @user = users(:david)
   end

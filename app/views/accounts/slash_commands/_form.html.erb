@@ -35,7 +35,7 @@
   <div class="flex align-center gap">
     <label class="flex align-center gap flex-item-grow input input--actor">
       <%= form.collection_select :bot_id, @bots, :id, :name,
-            { prompt: "Select a bot to trigger", include_blank: false },
+            { prompt: "Select a bot to trigger" },
             { class: "input", required: true } %>
     </label>
   </div>

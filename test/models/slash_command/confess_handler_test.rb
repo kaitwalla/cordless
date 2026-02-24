@@ -13,15 +13,14 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
 
     message = @room.messages.create!(body: "/confess I secretly love Nickelback", creator: @user)
 
-    Current.stub :account, @account do
-      handler = SlashCommand::ConfessHandler.new(
-        message: message,
-        args: "I secretly love Nickelback",
-        room: @room,
-        user: @user
-      )
-      handler.execute
-    end
+    Current.stubs(:account).returns(@account)
+    handler = SlashCommand::ConfessHandler.new(
+      message: message,
+      args: "I secretly love Nickelback",
+      room: @room,
+      user: @user
+    )
+    handler.execute
 
     assert_raises(ActiveRecord::RecordNotFound) { message.reload }
 
@@ -40,15 +39,14 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
 
     message = @room.messages.create!(body: "/confess I secretly love Nickelback", creator: @user)
 
-    Current.stub :account, @account do
-      handler = SlashCommand::ConfessHandler.new(
-        message: message,
-        args: "I secretly love Nickelback",
-        room: @room,
-        user: @user
-      )
-      handler.execute
-    end
+    Current.stubs(:account).returns(@account)
+    handler = SlashCommand::ConfessHandler.new(
+      message: message,
+      args: "I secretly love Nickelback",
+      room: @room,
+      user: @user
+    )
+    handler.execute
 
     message.reload
     assert_equal "Anonymous confessions are not enabled", message.body.to_plain_text
@@ -61,15 +59,14 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
     message = @room.messages.create!(body: "/confess", creator: @user)
     original_body = message.body.to_plain_text
 
-    Current.stub :account, @account do
-      handler = SlashCommand::ConfessHandler.new(
-        message: message,
-        args: "",
-        room: @room,
-        user: @user
-      )
-      handler.execute
-    end
+    Current.stubs(:account).returns(@account)
+    handler = SlashCommand::ConfessHandler.new(
+      message: message,
+      args: "",
+      room: @room,
+      user: @user
+    )
+    handler.execute
 
     message.reload
     assert_equal original_body, message.body.to_plain_text
@@ -83,15 +80,14 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
 
     message = @room.messages.create!(body: "/confess My secret", creator: @user)
 
-    Current.stub :account, @account do
-      handler = SlashCommand::ConfessHandler.new(
-        message: message,
-        args: "My secret",
-        room: @room,
-        user: @user
-      )
-      handler.execute
-    end
+    Current.stubs(:account).returns(@account)
+    handler = SlashCommand::ConfessHandler.new(
+      message: message,
+      args: "My secret",
+      room: @room,
+      user: @user
+    )
+    handler.execute
 
     confessions_room = Rooms::Open.find_by(name: "anonymous-confessions")
     assert_not_nil confessions_room
@@ -106,15 +102,14 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
 
     message = @room.messages.create!(body: "/confess My secret", creator: @user)
 
-    Current.stub :account, @account do
-      handler = SlashCommand::ConfessHandler.new(
-        message: message,
-        args: "My secret",
-        room: @room,
-        user: @user
-      )
-      handler.execute
-    end
+    Current.stubs(:account).returns(@account)
+    handler = SlashCommand::ConfessHandler.new(
+      message: message,
+      args: "My secret",
+      room: @room,
+      user: @user
+    )
+    handler.execute
 
     anonymous_user = User.find_by(name: "Anonymous")
     assert_not_nil anonymous_user
@@ -132,15 +127,14 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
 
     message = @room.messages.create!(body: "/confess My secret", creator: @user)
 
-    Current.stub :account, @account do
-      handler = SlashCommand::ConfessHandler.new(
-        message: message,
-        args: "My secret",
-        room: @room,
-        user: @user
-      )
-      handler.execute
-    end
+    Current.stubs(:account).returns(@account)
+    handler = SlashCommand::ConfessHandler.new(
+      message: message,
+      args: "My secret",
+      room: @room,
+      user: @user
+    )
+    handler.execute
 
     confessions_room = Rooms::Open.find_by(name: "anonymous-confessions")
     confession = confessions_room.messages.last

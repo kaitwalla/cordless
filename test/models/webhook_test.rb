@@ -55,8 +55,8 @@ class WebhookTest < ActiveSupport::TestCase
   end
 
   test "delivery that times out" do
-    Webhook.any_instance.stubs(:post).raises(Net::OpenTimeout)
-    response = webhooks(:bender).deliver(messages(:first))
+    WebMock.stub_request(:post, webhooks(:bender).url).to_timeout
+    webhooks(:bender).deliver_command(messages(:first), nil, nil)
 
     reply_message = Message.last
     assert_equal "Failed to respond (timeout)", reply_message.body.to_plain_text

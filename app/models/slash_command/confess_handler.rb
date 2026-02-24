@@ -23,7 +23,9 @@ class SlashCommand::ConfessHandler < SlashCommand::BaseHandler
   end
 
   def confessions_room
-    Rooms::Open.find_or_create_by!(name: "anonymous-confessions")
+    Rooms::Open.find_or_create_by!(name: "anonymous-confessions") do |room|
+      room.creator = anonymous_user
+    end
   end
 
   def anonymous_user

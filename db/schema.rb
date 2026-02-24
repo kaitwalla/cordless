@@ -94,9 +94,9 @@ ActiveRecord::Schema[8.2].define(version: 2026_02_23_000002) do
   end
 
   create_table "custom_emojis", force: :cascade do |t|
-    t.string "shortcode", null: false
-    t.integer "creator_id", null: false
     t.datetime "created_at", null: false
+    t.integer "creator_id", null: false
+    t.string "shortcode", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_custom_emojis_on_creator_id"
     t.index ["shortcode"], name: "index_custom_emojis_on_shortcode", unique: true
@@ -182,13 +182,13 @@ ActiveRecord::Schema[8.2].define(version: 2026_02_23_000002) do
   end
 
   create_table "slash_commands", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "description", null: false
-    t.integer "command_type", default: 0, null: false
     t.integer "bot_id"
-    t.string "usage_hint"
+    t.integer "command_type", default: 0, null: false
     t.datetime "created_at", null: false
+    t.string "description", null: false
+    t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.string "usage_hint"
     t.index ["bot_id"], name: "index_slash_commands_on_bot_id"
     t.index ["name"], name: "index_slash_commands_on_name", unique: true
   end
@@ -218,8 +218,8 @@ ActiveRecord::Schema[8.2].define(version: 2026_02_23_000002) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bans", "users"
-  add_foreign_key "custom_emojis", "users", column: "creator_id"
   add_foreign_key "boosts", "messages"
+  add_foreign_key "custom_emojis", "users", column: "creator_id"
   add_foreign_key "exports", "accounts"
   add_foreign_key "exports", "users", column: "requested_by_id"
   add_foreign_key "messages", "rooms"
