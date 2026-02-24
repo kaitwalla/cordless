@@ -11,18 +11,13 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
     @account.settings.anonymous_confessions_enabled = true
     @account.save!
 
-    message = @room.messages.create!(body: "/confess I secretly love Nickelback", creator: @user)
-
     Current.stubs(:account).returns(@account)
     handler = SlashCommand::ConfessHandler.new(
-      message: message,
       args: "I secretly love Nickelback",
       room: @room,
       user: @user
     )
     handler.execute
-
-    assert_raises(ActiveRecord::RecordNotFound) { message.reload }
 
     confessions_room = Rooms::Open.find_by(name: "anonymous-confessions")
     assert_not_nil confessions_room
@@ -37,39 +32,33 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
     @account.settings.anonymous_confessions_enabled = false
     @account.save!
 
-    message = @room.messages.create!(body: "/confess I secretly love Nickelback", creator: @user)
-
     Current.stubs(:account).returns(@account)
     handler = SlashCommand::ConfessHandler.new(
-      message: message,
       args: "I secretly love Nickelback",
       room: @room,
       user: @user
     )
     handler.execute
 
-    message.reload
-    assert_equal "Anonymous confessions are not enabled", message.body.to_plain_text
+    error_message = @room.messages.last
+    assert_equal "Anonymous confessions are not enabled", error_message.body.to_plain_text
   end
 
   test "does nothing when args is blank and feature is enabled" do
     @account.settings.anonymous_confessions_enabled = true
     @account.save!
 
-    message = @room.messages.create!(body: "/confess", creator: @user)
-    original_body = message.body.to_plain_text
+    original_message_count = Message.count
 
     Current.stubs(:account).returns(@account)
     handler = SlashCommand::ConfessHandler.new(
-      message: message,
       args: "",
       room: @room,
       user: @user
     )
     handler.execute
 
-    message.reload
-    assert_equal original_body, message.body.to_plain_text
+    assert_equal original_message_count, Message.count
   end
 
   test "creates anonymous-confessions room if it does not exist" do
@@ -78,11 +67,8 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
 
     Rooms::Open.where(name: "anonymous-confessions").destroy_all
 
-    message = @room.messages.create!(body: "/confess My secret", creator: @user)
-
     Current.stubs(:account).returns(@account)
     handler = SlashCommand::ConfessHandler.new(
-      message: message,
       args: "My secret",
       room: @room,
       user: @user
@@ -100,11 +86,8 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
 
     User.where(name: "Anonymous").destroy_all
 
-    message = @room.messages.create!(body: "/confess My secret", creator: @user)
-
     Current.stubs(:account).returns(@account)
     handler = SlashCommand::ConfessHandler.new(
-      message: message,
       args: "My secret",
       room: @room,
       user: @user
@@ -125,11 +108,8 @@ class SlashCommand::ConfessHandlerTest < ActiveSupport::TestCase
       user.password = SecureRandom.hex(32)
     end
 
-    message = @room.messages.create!(body: "/confess My secret", creator: @user)
-
     Current.stubs(:account).returns(@account)
     handler = SlashCommand::ConfessHandler.new(
-      message: message,
       args: "My secret",
       room: @room,
       user: @user

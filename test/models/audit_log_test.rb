@@ -10,13 +10,16 @@ class AuditLogTest < ActiveSupport::TestCase
   end
 
   test "logs user creation" do
-    assert_difference -> { AuditLog.count }, +1 do
+    # Creating a user may also create Server bot and server DM, each with audit logs
+    server_exists = User.exists?(name: "Server", role: :bot)
+    expected_logs = server_exists ? 2 : 3  # user + DM, or user + Server + DM
+
+    assert_difference -> { AuditLog.count }, expected_logs do
       User.create!(name: "New User", email_address: "new@example.com", password: "secret123456")
     end
 
-    log = AuditLog.last
-    assert_equal "create", log.action
-    assert_equal "User", log.resource_type
+    log = AuditLog.where(resource_type: "User", action: "create").last
+    assert_equal "New User", User.find(log.resource_id).name
     assert_equal users(:david), log.user
   end
 

@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  include Auditable, Avatar, Bannable, Bot, Mentionable, Role, Transferable
+  include Auditable, Avatar, Bannable, Bot, Mentionable, Role, Server, Transferable
 
   has_many :memberships, dependent: :delete_all
   has_many :rooms, through: :memberships
@@ -19,7 +19,7 @@ class User < ApplicationRecord
 
   has_secure_password validations: false
 
-  after_create_commit :grant_membership_to_open_rooms
+  after_create_commit :grant_membership_to_open_rooms, unless: :bot?
 
   scope :ordered, -> { order("LOWER(name)") }
   scope :filtered_by, ->(query) { where("name like ?", "%#{query}%") }

@@ -1,5 +1,7 @@
 class Rooms::DirectsController < RoomsController
   before_action :set_room, only: %i[ edit destroy ]
+  before_action :prevent_server_dm_deletion, only: :destroy
+
   def new
     @room = Rooms::Direct.new
   end
@@ -32,5 +34,9 @@ class Rooms::DirectsController < RoomsController
     # All users in a direct room can administer it
     def ensure_can_administer
       true
+    end
+
+    def prevent_server_dm_deletion
+      head :forbidden if @room.server_dm?
     end
 end

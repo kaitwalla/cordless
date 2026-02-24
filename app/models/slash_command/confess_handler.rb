@@ -1,14 +1,11 @@
 class SlashCommand::ConfessHandler < SlashCommand::BaseHandler
   def execute
     unless feature_enabled?
-      message.update!(body: "Anonymous confessions are not enabled")
-      message.broadcast_update
+      reply_with(body: "Anonymous confessions are not enabled")
       return
     end
 
     return if args.blank?
-
-    message.destroy!
 
     confessions_room.messages.create!(
       body: args,

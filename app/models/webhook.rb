@@ -30,21 +30,35 @@ class Webhook < ApplicationRecord
     response
   end
 
-  def deliver_command(message, command, args)
-    deliver(message, command: command, args: args)
+  def deliver_command(command, args, room, invoking_user)
+    response = post(command_payload(command, args, room, invoking_user))
+
+    if response.body && response.body.bytesize > MAX_RESPONSE_SIZE
+      Rails.logger.warn "Webhook response too large: #{url} (#{response.body.bytesize} bytes)"
+      receive_text_reply_to(room, text: "Response too large")
+      return response
+    end
+
+    if text = extract_text_from(response)
+      receive_text_reply_to(room, text: text)
+    elsif attachment = extract_attachment_from(response)
+      receive_attachment_reply_to(room, attachment: attachment)
+    end
+
+    response
   rescue Net::OpenTimeout, Net::ReadTimeout => e
     Rails.logger.warn "Webhook timeout: #{url} (#{e.class})"
-    receive_text_reply_to message.room, text: "Failed to respond (timeout)"
+    receive_text_reply_to room, text: "Failed to respond (timeout)"
   rescue OpenSSL::SSL::SSLError => e
     Rails.logger.warn "Webhook SSL error: #{url} (#{e.message})"
-    receive_text_reply_to message.room, text: "Failed to respond (SSL error)"
+    receive_text_reply_to room, text: "Failed to respond (SSL error)"
   rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError => e
     Rails.logger.warn "Webhook connection error: #{url} (#{e.class})"
-    receive_text_reply_to message.room, text: "Failed to respond (connection error)"
+    receive_text_reply_to room, text: "Failed to respond (connection error)"
   rescue => e
     Rails.logger.error "Webhook unexpected error: #{url} (#{e.class}: #{e.message})"
     Sentry.capture_exception(e) if defined?(Sentry)
-    receive_text_reply_to message.room, text: "Failed to respond (error)"
+    receive_text_reply_to room, text: "Failed to respond (error)"
   end
 
   private
@@ -108,7 +122,7 @@ class Webhook < ApplicationRecord
     def payload(message, command: nil, args: nil)
       data = {
         user:    { id: message.creator.id, name: message.creator.name },
-        room:    { id: message.room.id, name: message.room.name, path: room_bot_messages_path(message) },
+        room:    { id: message.room.id, name: message.room.name, path: room_bot_messages_path(message.room) },
         message: { id: message.id, body: { html: message.body.body, plain: without_recipient_mentions(message.plain_text_body) }, path: message_path(message) }
       }
 
@@ -119,12 +133,20 @@ class Webhook < ApplicationRecord
       data.to_json
     end
 
+    def command_payload(command, args, room, invoking_user)
+      {
+        user:    { id: invoking_user.id, name: invoking_user.name },
+        room:    { id: room.id, name: room.name, path: room_bot_messages_path(room) },
+        command: { name: command.name, args: args }
+      }.to_json
+    end
+
     def message_path(message)
       Rails.application.routes.url_helpers.room_at_message_path(message.room, message)
     end
 
-    def room_bot_messages_path(message)
-      Rails.application.routes.url_helpers.room_bot_messages_path(message.room, user.bot_key)
+    def room_bot_messages_path(room)
+      Rails.application.routes.url_helpers.room_bot_messages_path(room, user.bot_key)
     end
 
     def extract_text_from(response)

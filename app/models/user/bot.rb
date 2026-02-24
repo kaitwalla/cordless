@@ -58,8 +58,8 @@ module User::Bot
     webhook.deliver(message)
   end
 
-  def deliver_webhook_for_command(message, command, args)
-    Bot::CommandWebhookJob.perform_later(self, message, command, args) if webhook
+  def deliver_webhook_for_command(command, args, room, user)
+    Bot::CommandWebhookJob.perform_later(self, command, args, room, user) if webhook
   end
 
 

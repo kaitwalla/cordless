@@ -12,9 +12,11 @@ class FirstRunTest < ActiveSupport::TestCase
     assert user.administrator?
   end
 
-  test "first user has access to first room" do
+  test "first user has access to first room and server DM" do
     user = create_first_run_user
-    assert user.rooms.one?
+    assert_equal 2, user.rooms.count
+    assert user.rooms.without_directs.one?
+    assert user.server_dm.present?
   end
 
   test "first room is an open room" do

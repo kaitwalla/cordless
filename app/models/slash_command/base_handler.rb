@@ -1,8 +1,7 @@
 class SlashCommand::BaseHandler
-  attr_reader :message, :args, :room, :user
+  attr_reader :args, :room, :user
 
-  def initialize(message:, args:, room:, user:)
-    @message = message
+  def initialize(args:, room:, user:)
     @args = args
     @room = room
     @user = user

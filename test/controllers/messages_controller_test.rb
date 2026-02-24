@@ -140,6 +140,32 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "slash command with just slash shows invalid command" do
+    assert_no_difference -> { Message.count } do
+      post room_messages_url(@room), params: { message: { body: "/", client_message_id: 999 } }
+    end
+
+    assert_select "span", text: /Unknown command/
+  end
+
+  test "slash command with unknown command shows invalid command" do
+    assert_no_difference -> { Message.count } do
+      post room_messages_url(@room), params: { message: { body: "/notarealcommand", client_message_id: 999 } }
+    end
+
+    assert_select "span", text: /Unknown command/
+  end
+
+  test "valid slash command does not create message" do
+    SlashCommand.create!(name: "test", description: "Test command", command_type: :builtin)
+
+    assert_no_difference -> { Message.count } do
+      post room_messages_url(@room), params: { message: { body: "/test", client_message_id: 999 } }
+    end
+
+    assert_response :ok
+  end
+
   private
     def ensure_messages_present(*messages, count: 1)
       messages.each do |message|

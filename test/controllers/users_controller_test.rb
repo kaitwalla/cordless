@@ -29,15 +29,19 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create" do
-    assert_difference -> { User.count }, 1 do
+    server_exists = User.exists?(name: "Server", role: :bot)
+    expected_users = server_exists ? 1 : 2  # new user, or new user + Server
+
+    assert_difference -> { User.count }, expected_users do
       post join_url(@join_code), params: { user: { name: "New Person", email_address: "new@37signals.com", password: "secret123456" } }
     end
 
     assert_redirected_to root_url
 
-    user = User.last
+    user = User.find_by(name: "New Person")
     assert_equal user.id, Session.find_by(token: parsed_cookies.signed[:session_token]).user.id
-    assert_equal Rooms::Open.all, user.rooms
+    assert_equal Rooms::Open.count + 1, user.rooms.count  # open rooms + server DM
+    assert user.server_dm.present?
   end
 
   test "creating a new user with an existing email address will redirect to login screen" do

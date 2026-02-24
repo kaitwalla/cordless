@@ -12,6 +12,10 @@ class Rooms::InvolvementsController < ApplicationController
       return head :bad_request
     end
 
+    if involvement == "invisible" && @room.direct? && @room.server_dm?
+      return head :forbidden
+    end
+
     @membership.update! involvement: involvement
 
     broadcast_visibility_changes

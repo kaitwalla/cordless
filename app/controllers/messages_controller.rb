@@ -21,15 +21,15 @@ class MessagesController < ApplicationController
 
   def create
     set_room
-    @message = @room.messages.create_with_attachment!(message_params)
 
-    @message.broadcast_create
-
-    if command = detect_slash_command(@message)
-      execute_slash_command(command, @message)
-    else
-      deliver_webhooks_to_bots
+    body = extract_plain_text_body
+    if body.start_with?("/")
+      return handle_slash_command(body)
     end
+
+    @message = @room.messages.create_with_attachment!(message_params)
+    @message.broadcast_create
+    deliver_webhooks_to_bots
   rescue ActiveRecord::RecordNotFound
     render action: :room_not_found
   end
@@ -88,16 +88,19 @@ class MessagesController < ApplicationController
     end
 
 
-    def detect_slash_command(message)
-      plain_text = message.plain_text_body.to_s.strip
-      return unless plain_text.start_with?("/")
-
-      match = plain_text.match(/\A\/([a-z0-9_]+)/)
-      SlashCommand.find_by(name: match[1]) if match
+    def extract_plain_text_body
+      ActionText::Content.new(message_params[:body]).to_plain_text.strip
     end
 
-    def execute_slash_command(command, message)
-      args = message.plain_text_body.to_s.strip.sub(/\A\/[a-z0-9_]+\s*/, "")
-      command.execute(message: message, args: args, room: @room, user: Current.user)
+    def handle_slash_command(body)
+      match = body.match(/\A\/([a-z0-9_]+)/)
+      return render action: :invalid_slash_command unless match
+
+      command = SlashCommand.find_by(name: match[1])
+      return render action: :invalid_slash_command unless command
+
+      args = body.sub(/\A\/[a-z0-9_]+\s*/, "")
+      command.execute(args: args, room: @room, user: Current.user)
+      head :ok
     end
 end

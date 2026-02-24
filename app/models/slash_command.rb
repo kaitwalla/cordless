@@ -14,11 +14,11 @@ class SlashCommand < ApplicationRecord
     where("name LIKE ? OR description LIKE ?", "%#{sanitized}%", "%#{sanitized}%")
   }
 
-  def execute(message:, args:, room:, user:)
+  def execute(args:, room:, user:)
     if builtin?
-      handler_class.new(message: message, args: args, room: room, user: user).execute
+      handler_class.new(args: args, room: room, user: user).execute
     elsif webhook? && bot
-      bot.deliver_webhook_for_command(message, self, args)
+      bot.deliver_webhook_for_command(self, args, room, user)
     end
   end
 

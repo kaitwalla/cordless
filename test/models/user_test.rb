@@ -6,8 +6,11 @@ class UserTest < ActiveSupport::TestCase
     assert users(:david).valid?
   end
 
-  test "creating users grants membership to the open rooms" do
-    assert_difference -> { Membership.count }, +Rooms::Open.count do
+  test "creating users grants membership to the open rooms and server DM" do
+    # Expected: open rooms for new user + 2 for server DM (user + Server)
+    expected = Rooms::Open.count + 2
+
+    assert_difference -> { Membership.count }, expected do
       create_new_user
     end
   end
