@@ -1,6 +1,6 @@
 <figure class="reply-attachment">
-  <%= link_to room_at_message_path(message.room, message), class: "reply-attachment__link" do %>
-    <% if message.content_type.attachment? && message.attachment.representable? %>
+  <%= link_to message.room ? room_at_message_path(message.room, message) : "#", class: "reply-attachment__link" do %>
+    <% if message.attachment? && message.attachment.representable? %>
       <% if message.attachment.video? %>
         <%= image_tag message.attachment.preview(format: :webp, resize_to_limit: [200, 120]), class: "reply-thumbnail", alt: message.attachment.filename %>
       <% else %>
@@ -9,7 +9,7 @@
     <% end %>
     <figcaption class="reply-attachment__caption">
       <strong><%= message.creator&.name || "Unknown" %></strong>
-      <% if message.content_type.attachment? && message.attachment.attached? %>
+      <% if message.attachment? %>
         <span><%= message.attachment.filename %></span>
       <% end %>
     </figcaption>
