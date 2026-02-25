@@ -133,6 +133,25 @@ trix-editor {
   }
 }
 
+[data-trix-content-type~='application/vnd.cordless.reply'] {
+  display: block;
+  margin: 0.5em 0;
+
+  /* Hide the attachment toolbar - replies shouldn't be individually removable */
+  .attachment__toolbar {
+    display: none;
+  }
+
+  /* Ensure images are constrained inside Trix editor to prevent layout thrashing */
+  .reply-attachment {
+    max-width: 200px;
+  }
+
+  .reply-thumbnail {
+    max-height: 120px;
+  }
+}
+
 [data-trix-content-type~="application/vnd.actiontext.opengraph-embed"] {
   * {
     text-decoration: none;
@@ -201,6 +220,47 @@ trix-editor,
       content: "— ";
       color: var(--color-border-darker);
     }
+  }
+
+  /* Reply attachments (used when replying to image messages) */
+  .reply-attachment {
+    display: block;
+    margin: 0.5em 0;
+    max-width: 250px;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5em;
+    overflow: hidden;
+    background: var(--color-bg);
+  }
+
+  .reply-attachment__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .reply-attachment .reply-thumbnail {
+    max-width: 100%;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .reply-attachment__caption {
+    padding: 0.5em;
+    font-size: 0.8rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .reply-attachment__caption strong {
+    display: block;
+  }
+
+  .reply-attachment__caption span {
+    color: var(--color-muted);
+    font-size: 0.75rem;
   }
 
   a {
