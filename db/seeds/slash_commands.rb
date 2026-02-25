@@ -13,12 +13,6 @@ SlashCommand.find_or_create_by!(name: "tableflip") do |cmd|
   cmd.command_type = :builtin
 end
 
-SlashCommand.find_or_create_by!(name: "giphy") do |cmd|
-  cmd.description = "Search for and post a GIF from Giphy"
-  cmd.usage_hint = "/giphy [search term]"
-  cmd.command_type = :builtin
-end
-
 SlashCommand.find_or_create_by!(name: "confess") do |cmd|
   cmd.description = "Post an anonymous message to the confessions channel"
   cmd.usage_hint = "/confess [message]"
