@@ -2,9 +2,9 @@
   data-reply-sgid="<%= message.attachable_sgid %>"
   <% if message.content_type.attachment? %>
     <% if message.attachment.video? %>
-      data-reply-thumbnail-url="<%= url_for(message.attachment.preview(format: :webp)) %>"
+      data-reply-thumbnail-url="<%= url_for(message.attachment.preview(format: :webp, resize_to_limit: [200, 120])) %>"
     <% elsif message.attachment.representable? %>
-      data-reply-thumbnail-url="<%= url_for(message.attachment.representation(:thumb)) %>"
+      data-reply-thumbnail-url="<%= url_for(message.attachment.representation(:reply_thumb)) %>"
     <% end %>
     data-reply-attachment-name="<%= message.attachment.filename %>"
   <% end %>>

@@ -365,14 +365,31 @@ See `todo.md` for detailed list. Key items:
 
 ## Deployment
 
-### Docker
+### Versioning
+
+The app version is stored in the `VERSION` file. Bump this before deploying:
+
+```bash
+# Edit VERSION file with new version number (e.g., 1.5.1)
+# Then rebuild and deploy
+```
+
+### Docker Production
+
+```bash
+# Rebuild after code changes
+docker compose -f docker-compose.production.yml build web
+docker compose -f docker-compose.production.yml up -d web
+```
+
+Persistent storage at `/rails/storage`.
+
+### Docker (standalone)
 
 ```bash
 docker build -t cordless .
 docker run -e SECRET_KEY_BASE=... -e VAPID_PUBLIC_KEY=... -e VAPID_PRIVATE_KEY=... -p 3000:3000 cordless
 ```
-
-Persistent storage at `/rails/storage`.
 
 ### Manual
 

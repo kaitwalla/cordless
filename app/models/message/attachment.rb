@@ -3,10 +3,13 @@ module Message::Attachment
 
   THUMBNAIL_MAX_WIDTH = 1200
   THUMBNAIL_MAX_HEIGHT = 800
+  REPLY_THUMBNAIL_MAX_WIDTH = 200
+  REPLY_THUMBNAIL_MAX_HEIGHT = 120
 
   included do
     has_one_attached :attachment do |attachable|
       attachable.variant :thumb, resize_to_limit: [ THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT ]
+      attachable.variant :reply_thumb, resize_to_limit: [ REPLY_THUMBNAIL_MAX_WIDTH, REPLY_THUMBNAIL_MAX_HEIGHT ]
     end
   end
 
