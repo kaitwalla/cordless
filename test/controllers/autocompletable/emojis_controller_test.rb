@@ -45,6 +45,43 @@ class Autocompletable::EmojisControllerTest < ActionDispatch::IntegrationTest
     assert unicode.present?, "Expected unicode emojis in response"
   end
 
+  test "index with all=true returns emojis grouped by category" do
+    create_custom_emoji("test_picker_emoji")
+
+    get autocompletable_emojis_url(format: :json, all: true)
+    assert_response :success
+
+    json = JSON.parse(response.body)
+
+    assert json.key?("custom_emojis"), "Expected custom_emojis key"
+    assert json.key?("unicode_emojis"), "Expected unicode_emojis key"
+
+    # Check custom emojis
+    custom = json["custom_emojis"].find { |e| e["shortcode"] == "test_picker_emoji" }
+    assert custom.present?, "Expected custom emoji in response"
+    assert custom["sgid"].present?, "Expected sgid in custom emoji"
+
+    # Check unicode emojis by category
+    unicode = json["unicode_emojis"]
+    assert unicode.key?("smileys"), "Expected smileys category"
+    assert unicode["smileys"].is_a?(Array), "Expected smileys to be an array"
+    assert unicode["smileys"].first.key?("emoji"), "Expected emoji field in unicode emoji"
+    assert unicode["smileys"].first.key?("shortcode"), "Expected shortcode field in unicode emoji"
+  end
+
+  test "index with all=true returns all categories" do
+    get autocompletable_emojis_url(format: :json, all: true)
+    assert_response :success
+
+    json = JSON.parse(response.body)
+    unicode = json["unicode_emojis"]
+
+    expected_categories = %w[smileys gestures people hearts animals nature food objects symbols flags activities travel misc]
+    expected_categories.each do |category|
+      assert unicode.key?(category), "Expected #{category} category"
+    end
+  end
+
   private
 
   def create_custom_emoji(shortcode)

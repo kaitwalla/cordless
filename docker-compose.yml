@@ -24,6 +24,7 @@ services:
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-secret}
       # Note: LIVEKIT_URL must be accessible from the browser, so use localhost (not the Docker service name)
       - LIVEKIT_URL=${LIVEKIT_URL:-ws://localhost:7880}
+      - SELENIUM_URL=http://chrome:4444/wd/hub
     volumes:
       - .:/rails
       - /rails/vendor/bundle  # Don't mount over installed gems
@@ -32,6 +33,8 @@ services:
       redis:
         condition: service_healthy
       livekit:
+        condition: service_healthy
+      chrome:
         condition: service_healthy
     restart: unless-stopped
 
@@ -56,6 +59,20 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:7880/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  chrome:
+    image: seleniarm/standalone-chromium:latest
+    shm_size: 2gb
+    ports:
+      # Bound to localhost only - noVNC has default password "secret"
+      - "127.0.0.1:4444:4444"
+      - "127.0.0.1:7900:7900"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
       interval: 10s
       timeout: 5s
       retries: 3

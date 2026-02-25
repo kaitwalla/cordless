@@ -38,6 +38,86 @@
                   <span class="for-screen-reader">Attach a file</span>
                 </label>
 
+                <div class="emoji-picker-container"
+                     data-controller="emoji-picker"
+                     data-emoji-picker-url-value="<%= autocompletable_emojis_path %>"
+                     data-emoji-picker-composer-outlet="#composer">
+                  <button class="btn btn--borderless txt-small flex-item-no-shrink"
+                          type="button"
+                          data-action="emoji-picker#toggle"
+                          data-emoji-picker-target="toggle"
+                          aria-expanded="false"
+                          aria-controls="emoji-picker-panel"
+                          aria-label="Emoji picker">
+                    <%= image_tag "emoji.svg", size: 22, class: "colorize--black", aria: { hidden: "true" } %>
+                    <span class="for-screen-reader">Emoji</span>
+                  </button>
+
+                  <div class="emoji-picker" id="emoji-picker-panel" data-emoji-picker-target="menu" hidden>
+                    <div class="emoji-picker__search">
+                      <input type="text"
+                             class="emoji-picker__search-input"
+                             placeholder="Search emojis..."
+                             aria-label="Search emojis"
+                             data-emoji-picker-target="search"
+                             data-action="input->emoji-picker#search">
+                    </div>
+
+                    <div class="emoji-picker__tabs" role="tablist" aria-label="Emoji categories" data-emoji-picker-target="tabs">
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="custom" data-action="emoji-picker#selectCategory" title="Custom">
+                        <span aria-hidden="true">&#11088;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab emoji-picker__tab--active" role="tab" aria-selected="true" data-category="smileys" data-action="emoji-picker#selectCategory" title="Smileys">
+                        <span aria-hidden="true">&#128512;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="gestures" data-action="emoji-picker#selectCategory" title="Gestures">
+                        <span aria-hidden="true">&#128075;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="people" data-action="emoji-picker#selectCategory" title="People">
+                        <span aria-hidden="true">&#128100;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="hearts" data-action="emoji-picker#selectCategory" title="Hearts">
+                        <span aria-hidden="true">&#10084;&#65039;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="animals" data-action="emoji-picker#selectCategory" title="Animals">
+                        <span aria-hidden="true">&#128049;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="nature" data-action="emoji-picker#selectCategory" title="Nature">
+                        <span aria-hidden="true">&#127793;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="food" data-action="emoji-picker#selectCategory" title="Food">
+                        <span aria-hidden="true">&#127829;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="activities" data-action="emoji-picker#selectCategory" title="Activities">
+                        <span aria-hidden="true">&#9917;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="travel" data-action="emoji-picker#selectCategory" title="Travel">
+                        <span aria-hidden="true">&#128663;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="objects" data-action="emoji-picker#selectCategory" title="Objects">
+                        <span aria-hidden="true">&#128161;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="symbols" data-action="emoji-picker#selectCategory" title="Symbols">
+                        <span aria-hidden="true">&#10004;&#65039;</span>
+                      </button>
+                      <button type="button" class="emoji-picker__tab" role="tab" aria-selected="false" data-category="flags" data-action="emoji-picker#selectCategory" title="Flags">
+                        <span aria-hidden="true">&#127988;</span>
+                      </button>
+                    </div>
+
+                    <div class="emoji-picker__grid" data-emoji-picker-target="grid" role="tabpanel">
+                      <div class="emoji-picker__empty">Loading...</div>
+                    </div>
+
+                    <div class="emoji-picker__footer">
+                      <%= link_to new_custom_emoji_path, class: "emoji-picker__add-link" do %>
+                        <%= image_tag "add.svg", size: 16, class: "emoji-picker__add-icon colorize--subtle", aria: { hidden: "true" } %>
+                        Add custom emoji
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
                 <button class="btn btn--borderless txt-small flex-item-no-shrink composer__rich-text-btn" type="button" data-action="composer#toggleToolbar">
                   <%= image_tag "text-options.svg", size: 20, class: "colorize--black", aria: { hidden: "true" } %>
                   <span class="for-screen-reader">Rich text</span>

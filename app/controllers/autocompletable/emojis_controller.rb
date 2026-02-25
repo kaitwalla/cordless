@@ -1,10 +1,24 @@
 class Autocompletable::EmojisController < ApplicationController
   def index
-    @custom_emojis = find_custom_emojis.limit(10)
-    @unicode_emojis = find_unicode_emojis.first(10)
+    if params.key?(:all)
+      render_all_emojis
+    else
+      render_autocomplete_emojis
+    end
   end
 
   private
+
+  def render_all_emojis
+    @custom_emojis = CustomEmoji.ordered.with_attached_image
+    @unicode_emojis_by_category = UnicodeEmoji.all.group_by(&:category)
+    render :all
+  end
+
+  def render_autocomplete_emojis
+    @custom_emojis = find_custom_emojis.limit(10)
+    @unicode_emojis = find_unicode_emojis.first(10)
+  end
 
   def find_custom_emojis
     query = params[:query].to_s.downcase

@@ -18,6 +18,10 @@ class Message::ReplyableTest < ActiveSupport::TestCase
     assert_equal "messages/reply_attachment", @message.to_trix_content_attachment_partial_path
   end
 
+  test "attachable content type" do
+    assert_equal "application/vnd.cordless.reply", @message.attachable_content_type
+  end
+
   test "plain text representation" do
     assert_equal "[Reply to #{@message.creator.name}]", @message.attachable_plain_text_representation(nil)
   end

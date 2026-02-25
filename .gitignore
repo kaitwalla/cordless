@@ -42,3 +42,9 @@ app/assets/builds/*
 
 # Ignore our exported zipfiles
 /*.zip
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Docker volume data
+/data/

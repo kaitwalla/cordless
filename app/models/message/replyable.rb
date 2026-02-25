@@ -1,7 +1,13 @@
 module Message::Replyable
   extend ActiveSupport::Concern
 
+  REPLY_CONTENT_TYPE = "application/vnd.cordless.reply"
+
   include ActionText::Attachable
+
+  def attachable_content_type
+    REPLY_CONTENT_TYPE
+  end
 
   def to_attachable_partial_path
     "messages/reply_attachment"
