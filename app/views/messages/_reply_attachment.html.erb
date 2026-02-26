@@ -8,7 +8,7 @@
           <%= image_tag message.attachment.representation(:reply_thumb), class: "reply-thumbnail", alt: message.attachment.filename %>
         <% end %>
       <% rescue => e %>
-        <% Rails.logger.error "Failed to render reply thumbnail: #{e.message}" %>
+        <% Rails.logger.error "[REPLY_THUMB_ERROR] Message##{message.id} (attachment: #{message.attachment&.filename}): #{e.class} - #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}" %>
       <% end %>
     <% end %>
     <figcaption class="reply-attachment__caption">
