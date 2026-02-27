@@ -16,7 +16,19 @@
           <%= form_with model: @message, url: room_message_path(@room, @message), id: dom_id(@message, :form), data: {
                 controller: "form", action: "trix-file-accept->form#preventAttachment keydown.esc->form#cancel keydown.ctrl+enter->form#submit:prevent keydown.meta+enter->form#submit:prevent" } do |form| %>
             <div class="full-width input input--actor min-width fill-white">
-              <% body_without_attachments = @message.body.to_s.gsub(/<action-text-attachment[^>]*>.*?<\/action-text-attachment>/m, '<em>[reply removed for editing]</em>') %>
+              <%# Extract and preserve reply attachments, edit only the text %>
+              <%
+                body_html = @message.body.to_s
+                attachments = body_html.scan(/<action-text-attachment[^>]*>.*?<\/action-text-attachment>/m)
+                body_without_attachments = body_html.gsub(/<action-text-attachment[^>]*>.*?<\/action-text-attachment>/m, '').strip
+              %>
+              <% if attachments.any? %>
+                <div class="reply-preview pad-block-end-half">
+                  <small class="txt-subtle">Reply to:</small>
+                  <%= @message.body.attachments.first&.attachable&.creator&.name || "Unknown" %>
+                </div>
+                <%= hidden_field_tag :preserved_attachments, attachments.join('') %>
+              <% end %>
               <%= form.rich_text_area :body,
                     value: body_without_attachments,
                     rows: 1,
