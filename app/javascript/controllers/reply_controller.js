@@ -64,7 +64,12 @@ export default class extends Controller {
 
   get #bodyContent() {
     const body = this.bodyTarget.querySelector(".trix-content").cloneNode(true)
-    return this.#stripMentionAttachments(this.#stripUnfurledAttachments(body)).innerHTML
+    return this.#stripReplyAttachments(this.#stripMentionAttachments(this.#stripUnfurledAttachments(body))).innerHTML
+  }
+
+  #stripReplyAttachments(node) {
+    node.querySelectorAll(".reply-attachment").forEach(reply => reply.remove())
+    return node
   }
 
   #stripMentionAttachments(node) {

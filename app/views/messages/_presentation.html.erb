@@ -1,10 +1,14 @@
 <div id="<%= dom_id(message, :presentation) %>" dir="auto" data-reply-target="body" data-messages-target="body"
   data-reply-sgid="<%= message.attachable_sgid %>"
   <% if message.attachment? %>
-    <% if message.attachment.video? %>
-      data-reply-thumbnail-url="<%= url_for(message.attachment.preview(format: :webp, resize_to_limit: [200, 120])) %>"
-    <% elsif message.attachment.representable? %>
-      data-reply-thumbnail-url="<%= url_for(message.attachment.representation(:reply_thumb)) %>"
+    <% begin %>
+      <% if message.attachment.video? %>
+        data-reply-thumbnail-url="<%= url_for(message.attachment.preview(format: :webp, resize_to_limit: [200, 120])) %>"
+      <% elsif message.attachment.representable? %>
+        data-reply-thumbnail-url="<%= url_for(message.attachment.representation(:reply_thumb)) %>"
+      <% end %>
+    <% rescue => e %>
+      <% Rails.logger.error "[THUMBNAIL_URL_ERROR] #{e.class}: #{e.message}" %>
     <% end %>
     data-reply-attachment-name="<%= message.attachment.filename %>"
   <% end %>>

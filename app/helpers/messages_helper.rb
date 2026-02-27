@@ -1,4 +1,34 @@
 module MessagesHelper
+  def message_reply_attachment_for_edit(message)
+    return nil unless message.body.body
+
+    message.body.body.attachments.find do |attachment|
+      attachment.attachable.is_a?(Message)
+    end&.attachable
+  end
+
+  def message_text_content_for_edit(message)
+    return "" unless message.body.body
+
+    # Get the HTML and strip reply attachments
+    html = message.body.body.to_trix_html
+    doc = Nokogiri::HTML.fragment(html)
+
+    # Remove figures containing reply attachment data
+    doc.css('figure[data-trix-attachment]').each do |figure|
+      begin
+        attachment_data = JSON.parse(figure['data-trix-attachment'])
+        if attachment_data['contentType'] == 'application/vnd.cordless.reply'
+          figure.remove
+        end
+      rescue JSON::ParserError
+        # Skip if can't parse
+      end
+    end
+
+    doc.to_html
+  end
+
   def message_area_tag(room, &)
     tag.div id: "message-area", class: "message-area", contents: true, data: {
       controller: "messages presence drop-target",

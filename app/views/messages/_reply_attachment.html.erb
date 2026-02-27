@@ -1,9 +1,21 @@
 <figure class="reply-attachment">
   <%= link_to message&.room ? room_at_message_path(message.room, message) : "#", class: "reply-attachment__link" do %>
+    <% has_thumbnail = message&.attachment? && message.attachment.representable? rescue false %>
+    <% if has_thumbnail %>
+      <% begin %>
+        <% if message.attachment.video? %>
+          <%= image_tag message.attachment.preview(format: :webp, resize_to_limit: [200, 120]), class: "reply-thumbnail", alt: message.attachment.filename %>
+        <% else %>
+          <%= image_tag message.attachment.representation(:reply_thumb), class: "reply-thumbnail", alt: message.attachment.filename %>
+        <% end %>
+      <% rescue => e %>
+        <% Rails.logger.error "[REPLY_THUMB_ERROR] #{message&.id}: #{e.message}" %>
+      <% end %>
+    <% end %>
     <figcaption class="reply-attachment__caption">
       <strong><%= message&.creator&.name || "Unknown" %></strong>
-      <% if message&.attachment? %>
-        <span><%= message.attachment.filename %></span>
+      <% if message&.attachment? && !has_thumbnail %>
+        <span><%= message.attachment.filename rescue 'attachment' %></span>
       <% end %>
     </figcaption>
   <% end %>

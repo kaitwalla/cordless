@@ -13,29 +13,25 @@
         </div>
       <% else %>
         <div class="composer--edit composer--rich-text">
+          <% reply_to_message = message_reply_attachment_for_edit(@message) %>
+          <% if reply_to_message %>
+            <div class="message__reply-preview">
+              <%= render "messages/reply_attachment", message: reply_to_message %>
+            </div>
+            <input type="hidden" name="reply_to_message_id" value="<%= reply_to_message.id %>">
+          <% end %>
+
           <%= form_with model: @message, url: room_message_path(@room, @message), id: dom_id(@message, :form), data: {
                 controller: "form", action: "trix-file-accept->form#preventAttachment keydown.esc->form#cancel keydown.ctrl+enter->form#submit:prevent keydown.meta+enter->form#submit:prevent" } do |form| %>
             <div class="full-width input input--actor min-width fill-white">
-              <%# Extract and preserve reply attachments, edit only the text %>
-              <%
-                body_html = @message.body.to_s
-                has_reply = body_html.include?('application/vnd.cordless.reply')
-                body_without_attachments = body_html.gsub(/<action-text-attachment[^>]*content-type="application\/vnd\.cordless\.reply"[^>]*>.*?<\/action-text-attachment>/m, '').strip
-                replied_to_message = has_reply ? @message.body.attachments.find { |a| a.attachable.is_a?(Message) }&.attachable : nil
-              %>
-              <% if replied_to_message %>
-                <div class="reply-preview margin-block-end-half">
-                  <%= render "messages/reply_attachment", message: replied_to_message %>
-                </div>
-                <%= hidden_field_tag :reply_to_message_id, replied_to_message.id %>
-              <% end %>
-              <input type="hidden" name="message[body]" id="message_body_input" value="<%= body_without_attachments.gsub('"', '&quot;') %>">
+              <input type="hidden" name="message[body]" id="message_body_input">
+              <script type="application/json" id="edit_body_content"><%= message_text_content_for_edit(@message).to_json.html_safe %></script>
               <trix-editor input="message_body_input"
                     class="input trix-content"
                     aria-multiline="true"
                     aria-label="Edit message"
                     autofocus
-                    data-controller="rich-autocomplete"
+                    data-controller="rich-autocomplete edit-body"
                     data-action="<%= rich_text_data_actions %>"
                     data-rich-autocomplete-url-value="<%= autocompletable_users_path(room_id: @room.id) %>"></trix-editor>
             </div>
