@@ -1,31 +1,10 @@
-<% begin %>
-  <% Rails.logger.info "[REPLY_ATTACH_DEBUG] Rendering reply attachment for Message##{message&.id}" %>
-  <figure class="reply-attachment">
-    <%= link_to message&.room ? room_at_message_path(message.room, message) : "#", class: "reply-attachment__link" do %>
-      <% if message&.attachment? && message.attachment.representable? %>
-        <% begin %>
-          <% if message.attachment.video? %>
-            <%= image_tag message.attachment.preview(format: :webp, resize_to_limit: [200, 120]), class: "reply-thumbnail", alt: message.attachment.filename %>
-          <% else %>
-            <%= image_tag message.attachment.representation(:reply_thumb), class: "reply-thumbnail", alt: message.attachment.filename %>
-          <% end %>
-        <% rescue => e %>
-          <% Rails.logger.error "[REPLY_THUMB_ERROR] Message##{message.id}: #{e.class} - #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}" %>
-        <% end %>
-      <% end %>
-      <figcaption class="reply-attachment__caption">
-        <strong><%= message&.creator&.name || "Unknown" %></strong>
-        <% if message&.attachment? %>
-          <span><%= message.attachment.filename %></span>
-        <% end %>
-      </figcaption>
-    <% end %>
-  </figure>
-<% rescue => e %>
-  <% Rails.logger.error "[REPLY_ATTACH_CRASH] #{e.class} - #{e.message}\n#{e.backtrace&.first(10)&.join("\n")}" %>
-  <figure class="reply-attachment">
+<figure class="reply-attachment">
+  <%= link_to message&.room ? room_at_message_path(message.room, message) : "#", class: "reply-attachment__link" do %>
     <figcaption class="reply-attachment__caption">
-      <strong>Unknown</strong>
+      <strong><%= message&.creator&.name || "Unknown" %></strong>
+      <% if message&.attachment? %>
+        <span><%= message.attachment.filename %></span>
+      <% end %>
     </figcaption>
-  </figure>
-<% end %>
+  <% end %>
+</figure>

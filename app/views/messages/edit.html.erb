@@ -1,8 +1,6 @@
-<% Rails.logger.info "[EDIT_DEBUG] Starting edit for Message##{@message.id}" %>
 <turbo-frame id="<%= dom_id(@message, :edit) %>">
   <div class="message__body position-relative" data-controller="scroll-into-view">
     <div class="message__body-content message__body-content--editing gap">
-      <% Rails.logger.info "[EDIT_DEBUG] attachment?=#{@message.attachment?}" %>
       <% if @message.attachment? %>
         <%= message_attachment_presentation(@message) %>
 
@@ -14,12 +12,10 @@
           <% end %>
         </div>
       <% else %>
-        <% Rails.logger.info "[EDIT_DEBUG] Rendering rich text editor" %>
         <div class="composer--edit composer--rich-text">
           <%= form_with model: @message, url: room_message_path(@room, @message), id: dom_id(@message, :form), data: {
                 controller: "form", action: "trix-file-accept->form#preventAttachment keydown.esc->form#cancel keydown.ctrl+enter->form#submit:prevent keydown.meta+enter->form#submit:prevent" } do |form| %>
             <div class="full-width input input--actor min-width fill-white">
-              <% Rails.logger.info "[EDIT_DEBUG] About to render rich_text_area, body: #{@message.body.to_s.truncate(200)}" %>
               <%= form.rich_text_area :body,
                     rows: 1,
                     class: "input",
