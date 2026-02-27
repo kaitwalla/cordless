@@ -23,10 +23,12 @@
                 body_without_attachments = body_html.gsub(/<action-text-attachment[^>]*>.*?<\/action-text-attachment>/m, '').strip
               %>
               <% if attachments.any? %>
-                <div class="reply-preview pad-block-end-half">
-                  <small class="txt-subtle">Reply to:</small>
-                  <%= @message.body.attachments.first&.attachable&.creator&.name || "Unknown" %>
-                </div>
+                <% replied_to_message = @message.body.attachments.first&.attachable %>
+                <% if replied_to_message.is_a?(Message) %>
+                  <div class="reply-preview margin-block-end-half">
+                    <%= render "messages/reply_attachment", message: replied_to_message %>
+                  </div>
+                <% end %>
                 <%= hidden_field_tag :preserved_attachments, attachments.join('') %>
               <% end %>
               <%= form.rich_text_area :body,
