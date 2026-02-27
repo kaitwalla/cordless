@@ -55,7 +55,7 @@ export default class extends Controller {
 
   replaceWithReplyAttachment({ sgid, thumbnailUrl, filename, author, href }) {
     const editor = this.textTarget.editor
-    const figure = `<figure class="reply-attachment"><a href="${escapeHTML(href)}" class="reply-attachment__link"><img src="${escapeHTML(thumbnailUrl)}" alt="${escapeHTML(filename)}" class="reply-thumbnail"><figcaption class="reply-attachment__caption"><strong>${escapeHTML(author)}</strong> <span>${escapeHTML(filename)}</span></figcaption></a></figure>`
+    const figure = `<figure class="reply-attachment"><a href="${escapeHTML(href)}" class="reply-attachment__link"><figcaption class="reply-attachment__caption"><strong>${escapeHTML(author)}</strong> <span>${escapeHTML(filename)}</span></figcaption></a></figure>`
 
     const attachment = new Trix.Attachment({
       content: figure,
