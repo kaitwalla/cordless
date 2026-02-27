@@ -28,8 +28,8 @@
                   <div class="reply-preview margin-block-end-half">
                     <%= render "messages/reply_attachment", message: replied_to_message %>
                   </div>
+                  <%= hidden_field_tag :reply_to_message_id, replied_to_message.id %>
                 <% end %>
-                <%= hidden_field_tag :preserved_attachments, attachments.join('') %>
               <% end %>
               <%= form.rich_text_area :body,
                     value: body_without_attachments,

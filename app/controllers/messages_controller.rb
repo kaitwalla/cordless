@@ -80,9 +80,13 @@ class MessagesController < ApplicationController
 
     def update_message_params
       permitted = message_params
-      if params[:preserved_attachments].present? && permitted[:body].present?
-        # Prepend preserved reply attachments to the edited body
-        permitted[:body] = params[:preserved_attachments] + permitted[:body]
+      if params[:reply_to_message_id].present? && permitted[:body].present?
+        # Reconstruct the reply attachment and prepend to edited body
+        replied_to = Message.find_by(id: params[:reply_to_message_id])
+        if replied_to
+          attachment_html = %(<action-text-attachment sgid="#{replied_to.attachable_sgid}" content-type="application/vnd.cordless.reply"></action-text-attachment>)
+          permitted[:body] = attachment_html + permitted[:body]
+        end
       end
       permitted
     end
