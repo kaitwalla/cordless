@@ -19,28 +19,25 @@
               <%# Extract and preserve reply attachments, edit only the text %>
               <%
                 body_html = @message.body.to_s
-                attachments = body_html.scan(/<action-text-attachment[^>]*>.*?<\/action-text-attachment>/m)
-                body_without_attachments = body_html.gsub(/<action-text-attachment[^>]*>.*?<\/action-text-attachment>/m, '').strip
+                has_reply = body_html.include?('application/vnd.cordless.reply')
+                body_without_attachments = body_html.gsub(/<action-text-attachment[^>]*content-type="application\/vnd\.cordless\.reply"[^>]*>.*?<\/action-text-attachment>/m, '').strip
+                replied_to_message = has_reply ? @message.body.attachments.find { |a| a.attachable.is_a?(Message) }&.attachable : nil
               %>
-              <% if attachments.any? %>
-                <% replied_to_message = @message.body.attachments.first&.attachable %>
-                <% if replied_to_message.is_a?(Message) %>
-                  <div class="reply-preview margin-block-end-half">
-                    <%= render "messages/reply_attachment", message: replied_to_message %>
-                  </div>
-                  <%= hidden_field_tag :reply_to_message_id, replied_to_message.id %>
-                <% end %>
+              <% if replied_to_message %>
+                <div class="reply-preview margin-block-end-half">
+                  <%= render "messages/reply_attachment", message: replied_to_message %>
+                </div>
+                <%= hidden_field_tag :reply_to_message_id, replied_to_message.id %>
               <% end %>
-              <%= form.rich_text_area :body,
-                    value: body_without_attachments,
-                    rows: 1,
-                    class: "input",
-                    aria: { multiline: "true", label: "Edit message" },
-                    autofocus: true,
-                    data: {
-                      controller: "rich-autocomplete",
-                      action: rich_text_data_actions,
-                      rich_autocomplete_url_value: autocompletable_users_path(room_id: @room.id) } %>
+              <input type="hidden" name="message[body]" id="message_body_input" value="<%= body_without_attachments.gsub('"', '&quot;') %>">
+              <trix-editor input="message_body_input"
+                    class="input trix-content"
+                    aria-multiline="true"
+                    aria-label="Edit message"
+                    autofocus
+                    data-controller="rich-autocomplete"
+                    data-action="<%= rich_text_data_actions %>"
+                    data-rich-autocomplete-url-value="<%= autocompletable_users_path(room_id: @room.id) %>"></trix-editor>
             </div>
 
             <%= link_to "Close editor and discard changes", room_message_path(@room, @message), data: { form_target: "cancel" }, hidden: true %>
