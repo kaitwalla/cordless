@@ -41,7 +41,7 @@ class MessagesController < ApplicationController
   end
 
   def update
-    @message.update!(message_params)
+    @message.update!(update_message_params)
 
     @message.broadcast_replace_to @room, :messages, target: [ @message, :presentation ], partial: "messages/presentation", attributes: { maintain_scroll: true }
     redirect_to room_message_url(@room, @message)
@@ -76,6 +76,15 @@ class MessagesController < ApplicationController
 
     def message_params
       params.require(:message).permit(:body, :attachment, :client_message_id)
+    end
+
+    def update_message_params
+      permitted = message_params
+      if params[:preserved_attachments].present? && permitted[:body].present?
+        # Prepend preserved reply attachments to the edited body
+        permitted[:body] = params[:preserved_attachments] + permitted[:body]
+      end
+      permitted
     end
 
 
