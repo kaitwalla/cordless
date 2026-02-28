@@ -49,7 +49,8 @@ export default class extends Controller {
 
   get #attachmentReplyContent() {
     const filename = this.#escapeHtml(this.bodyTarget.dataset.replyAttachmentName)
-    return `<blockquote><a href="${this.linkTarget.href}">${filename}</a></blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
+    const replyIndicator = this.#isReplyToReply ? ` <em>↩ in reply to earlier</em>` : ""
+    return `<blockquote><a href="${this.linkTarget.href}">${filename}</a></blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}${replyIndicator}</cite>`
   }
 
   #escapeHtml(text) {
@@ -59,7 +60,18 @@ export default class extends Controller {
   }
 
   get #textReplyContent() {
-    return `<blockquote>${this.#bodyContent}</blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite><br>`
+    if (this.#isReplyToReply) {
+      return `<blockquote>${this.#bodyContent}</blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal} <em>↩ in reply to earlier</em></cite>`
+    }
+    return `<blockquote>${this.#bodyContent}</blockquote><cite>${this.authorTarget.innerHTML} ${this.#linkToOriginal}</cite>`
+  }
+
+  get #isReplyToReply() {
+    const trixContent = this.bodyTarget.querySelector(".trix-content")
+    // Check for either format: .reply-attachment (image replies) or blockquote+cite (text replies)
+    const hasImageReply = trixContent?.querySelector(".reply-attachment") !== null
+    const hasTextReply = trixContent?.querySelector("blockquote + cite") !== null
+    return hasImageReply || hasTextReply
   }
 
   get #bodyContent() {
@@ -68,7 +80,18 @@ export default class extends Controller {
   }
 
   #stripReplyAttachments(node) {
+    // Strip image reply attachments
     node.querySelectorAll(".reply-attachment").forEach(reply => reply.remove())
+
+    // Strip text reply format (blockquote followed by cite)
+    node.querySelectorAll("cite").forEach(cite => {
+      const prev = cite.previousElementSibling
+      if (prev?.tagName === "BLOCKQUOTE") {
+        prev.remove()
+        cite.remove()
+      }
+    })
+
     return node
   }
 
