@@ -13,7 +13,14 @@ class MessageTest < ActiveSupport::TestCase
     assert Message.new(body: "😄🤘").plain_text_body.all_emoji?
     assert_not Message.new(body: "Haha! 😄🤘").plain_text_body.all_emoji?
     assert_not Message.new(body: "🔥\nmultiple lines\n💯").plain_text_body.all_emoji?
-    assert_not Message.new(body: "🔥 💯").plain_text_body.all_emoji?
+    assert Message.new(body: "🔥 💯").plain_text_body.all_emoji?, "Spaces should be ignored"
+  end
+
+  test "emoji count" do
+    assert_equal 1, "😄".emoji_count
+    assert_equal 2, "😄🤘".emoji_count
+    assert_equal 2, "🔥 💯".emoji_count
+    assert_equal 3, "😄 🤘 🎉".emoji_count
   end
 
   test "mentionees" do

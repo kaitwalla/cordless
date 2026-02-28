@@ -1,26 +1,102 @@
 <%= turbo_frame_tag dom_id(@message, :new_boost) do %>
-  <div class="boost flex-inline postion--relative max-width fill-white" style="--column-gap: var(--inline-space-half)">
-    <%= form_with model: [ @message, Boost.new ], class: "boost__form flex align-center gap expanded",
-          data: { controller: "form scroll-into-view", turbo_frame: dom_id(@message, :boosting), action: "keydown.esc->form#cancel" } do |form| %>
-      <label class="boost__form-label flex gap" style="--column-gap: 0.7ch;" role="button" tabindex="0" aria-label="Add a boost">
-        <figure class="avatar boost__avatar flex-item-no-shrink">
-          <%= avatar_tag Current.user %>
-          <span class="for-screen-reader"><%= Current.user.name %></span>
-        </figure>
+  <div class="boost-emoji-picker"
+       data-controller="boost-emoji-picker"
+       data-boost-emoji-picker-url-value="<%= autocompletable_emojis_path %>"
+       data-boost-emoji-picker-message-id-value="<%= @message.id %>">
 
-        <%= form.text_field :content, id: nil, autofocus: true, autocomplete: "off", autocorrect: "off", maxlength: 16,
-              required: true, pattern: /\S+.*/, data: { boost_form_target: "input" }, class: "input input--boost txt-small" %>
-      </label>
+    <%= form_with model: [ @message, Boost.new ],
+          data: { turbo_frame: dom_id(@message, :boosting), boost_emoji_picker_target: "form" },
+          class: "boost-emoji-picker__form" do |form| %>
+      <%= form.hidden_field :content, value: "", data: { boost_emoji_picker_target: "content" } %>
+      <%= form.button type: "submit", style: "display: none", data: { boost_emoji_picker_target: "submit" } %>
+    <% end %>
 
-      <%= form.button class: "btn btn--reversed", type: "submit" do %>
-        <%= image_tag "check.svg", aria: { hidden: "true" } %>
-        <span class="for-screen-reader">Submit</span>
+    <div class="boost-emoji-picker__quick-reactions">
+      <% EmojiHelper::REACTIONS.each do |character, title| %>
+        <%= form_with model: [ @message, Boost.new ],
+              data: { turbo_frame: dom_id(@message, :boosting) } do |form| %>
+          <%= hidden_field_tag "boost[content]", character %>
+          <%= form.button type: "submit", title: title, class: "boost-emoji-picker__emoji btn btn--borderless" do %>
+            <span class="boost-emoji-picker__unicode"><%= character %></span>
+            <span class="for-screen-reader"><%= title %></span>
+          <% end %>
+        <% end %>
       <% end %>
 
-      <%= link_to message_boosts_path(@message), data: { turbo_frame: dom_id(@message, :boosts), form_target: "cancel" }, class: "btn btn--negative" do %>
-        <%= image_tag "minus.svg", aria: { hidden: "true" } %>
+      <button type="button"
+              class="boost-emoji-picker__emoji boost-emoji-picker__toggle btn btn--borderless"
+              data-action="boost-emoji-picker#toggle"
+              data-boost-emoji-picker-target="toggle"
+              aria-expanded="false"
+              title="More emojis">
+        <%= image_tag "emoji.svg", size: 20, class: "colorize--black", aria: { hidden: "true" } %>
+        <span class="for-screen-reader">More emojis</span>
+      </button>
+
+      <%= link_to message_boosts_path(@message),
+            data: { turbo_frame: dom_id(@message, :boosting) },
+            class: "boost-emoji-picker__close btn btn--borderless",
+            title: "Cancel" do %>
+        <%= image_tag "cancel.svg", size: 16, class: "colorize--black", aria: { hidden: "true" } %>
         <span class="for-screen-reader">Cancel</span>
       <% end %>
-    <% end %>
+    </div>
+
+    <div class="boost-emoji-picker__panel" data-boost-emoji-picker-target="panel" hidden>
+      <div class="boost-emoji-picker__search-container">
+        <input type="text"
+               class="boost-emoji-picker__search-input"
+               placeholder="Search emojis..."
+               aria-label="Search emojis"
+               data-boost-emoji-picker-target="search"
+               data-action="input->boost-emoji-picker#search">
+      </div>
+
+      <div class="boost-emoji-picker__tabs" role="tablist" aria-label="Emoji categories" data-boost-emoji-picker-target="tabs">
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="custom" data-action="boost-emoji-picker#selectCategory" title="Custom">
+          <span aria-hidden="true">&#11088;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab boost-emoji-picker__tab--active" role="tab" aria-selected="true" data-category="smileys" data-action="boost-emoji-picker#selectCategory" title="Smileys">
+          <span aria-hidden="true">&#128512;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="gestures" data-action="boost-emoji-picker#selectCategory" title="Gestures">
+          <span aria-hidden="true">&#128075;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="people" data-action="boost-emoji-picker#selectCategory" title="People">
+          <span aria-hidden="true">&#128100;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="hearts" data-action="boost-emoji-picker#selectCategory" title="Hearts">
+          <span aria-hidden="true">&#10084;&#65039;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="animals" data-action="boost-emoji-picker#selectCategory" title="Animals">
+          <span aria-hidden="true">&#128049;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="nature" data-action="boost-emoji-picker#selectCategory" title="Nature">
+          <span aria-hidden="true">&#127793;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="food" data-action="boost-emoji-picker#selectCategory" title="Food">
+          <span aria-hidden="true">&#127829;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="activities" data-action="boost-emoji-picker#selectCategory" title="Activities">
+          <span aria-hidden="true">&#9917;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="travel" data-action="boost-emoji-picker#selectCategory" title="Travel">
+          <span aria-hidden="true">&#128663;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="objects" data-action="boost-emoji-picker#selectCategory" title="Objects">
+          <span aria-hidden="true">&#128161;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="symbols" data-action="boost-emoji-picker#selectCategory" title="Symbols">
+          <span aria-hidden="true">&#10004;&#65039;</span>
+        </button>
+        <button type="button" class="boost-emoji-picker__tab" role="tab" aria-selected="false" data-category="flags" data-action="boost-emoji-picker#selectCategory" title="Flags">
+          <span aria-hidden="true">&#127988;</span>
+        </button>
+      </div>
+
+      <div class="boost-emoji-picker__grid" data-boost-emoji-picker-target="grid" data-add-custom-url="<%= new_custom_emoji_path %>" data-add-custom-icon="<%= asset_path('blob-add.svg') %>">
+        <div class="boost-emoji-picker__empty">Loading...</div>
+      </div>
+    </div>
   </div>
 <% end %>

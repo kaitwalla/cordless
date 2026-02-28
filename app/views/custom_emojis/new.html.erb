@@ -7,7 +7,12 @@
 <% end %>
 
 <section class="panel">
-  <%= form_with model: @custom_emoji, url: custom_emojis_path, class: "flex flex-column gap" do |form| %>
+  <%= form_with model: @custom_emoji, url: custom_emojis_path, class: "flex flex-column gap",
+        data: {
+          controller: "upload-preview",
+          upload_preview_dragging_class: "dropzone--active",
+          action: "dragenter->upload-preview#dragenter dragover->upload-preview#dragover dragleave->upload-preview#dragleave drop->upload-preview#drop"
+        } do |form| %>
     <h1 class="for-screen-reader">New custom emoji</h1>
 
     <% if @custom_emoji.errors.any? %>
@@ -20,25 +25,32 @@
       </div>
     <% end %>
 
-    <label class="align-center center avatar__form gap" data-controller="upload-preview">
-      <div class="btn input--file">
-        <%= image_tag "camera.svg", aria: { hidden: "true" }, size: 20 %>
-        <%= form.file_field :image, class: "input", accept: "image/*",
-              data: { upload_preview_target: "input", action: "upload-preview#previewImage" }, required: true %>
-        <span class="for-screen-reader">Upload emoji image</span>
-      </div>
+    <div class="custom-emoji-dropzone" data-upload-preview-target="dropzone">
+      <label class="align-center center avatar__form gap">
+        <div class="btn input--file">
+          <%= image_tag "camera.svg", aria: { hidden: "true" }, size: 20 %>
+          <%= form.file_field :image, class: "input", accept: "image/*",
+                data: { upload_preview_target: "input", action: "upload-preview#previewImage" }, required: true %>
+          <span class="for-screen-reader">Upload emoji image</span>
+        </div>
 
-      <div class="avatar input--file txt-xx-large" style="--avatar-size: var(--btn-size);">
-        <%= image_tag "default-emoji.svg", alt: "Emoji preview", size: 48, data: { upload_preview_target: "image" } %>
-      </div>
-    </label>
+        <div class="avatar input--file txt-xx-large" style="--avatar-size: var(--btn-size);">
+          <%= image_tag "default-emoji.svg", alt: "Emoji preview", size: 48, data: { upload_preview_target: "image" } %>
+        </div>
+      </label>
+
+      <p class="custom-emoji-dropzone__hint txt-small txt-subtle margin-none">
+        or drag and drop an image here
+      </p>
+    </div>
 
     <div class="flex align-center gap">
       <label class="flex align-center gap flex-item-grow txt-large input input--actor">
         <span class="txt-subtle">:</span>
         <%= form.text_field :shortcode, class: "input", autocomplete: "off", placeholder: "shortcode",
               autofocus: true, required: true, pattern: "[a-z0-9_-]+",
-              title: "Lowercase letters, numbers, underscores, and hyphens only" %>
+              title: "Lowercase letters, numbers, underscores, and hyphens only",
+              data: { upload_preview_target: "shortcode" } %>
         <span class="txt-subtle">:</span>
       </label>
     </div>

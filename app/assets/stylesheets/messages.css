@@ -101,10 +101,6 @@
   visibility: hidden;
   z-index: 0;
 
-  .message__boost-inline {
-    display: none;
-  }
-
   &:last-of-type {
     &:has(.boost__reactions) {
       .message__body {
@@ -126,12 +122,6 @@
 
     .message__actions-menu {
       display: block;
-    }
-  }
-
-  &:has(.boost-item) {
-    .message__boost-inline {
-      display: inline-flex;
     }
   }
 
@@ -252,9 +242,14 @@
   color: var(--color-text);
   font-size: 0.8rem;
   font-weight: 400;
-  opacity: 0.5;
+  opacity: 0;
   text-decoration: none;
+  transition: opacity 150ms ease-in-out;
   white-space: nowrap;
+
+  .message:hover & {
+    opacity: 0.5;
+  }
 }
 
 .message__body {
@@ -531,6 +526,7 @@ img.message__attachment {
 .message--emoji:not(:has(.composer--edit)) {
   .message__body-content {
     --message-background: transparent;
+    --emoji-size: 2em;
 
     border-radius: 0;
     margin-block-end: 0;
@@ -538,7 +534,7 @@ img.message__attachment {
     text-shadow: 0 0 3px var(--color-text-reversed);
 
     .trix-content {
-      font-size: 2.4em;
+      font-size: var(--emoji-size);
       line-height: 1.4;
     }
 
@@ -551,6 +547,18 @@ img.message__attachment {
       padding-block-start: 0;
     }
   }
+}
+
+.message--emoji-1:not(:has(.composer--edit)) .message__body-content {
+  --emoji-size: 4em;
+}
+
+.message--emoji-2:not(:has(.composer--edit)) .message__body-content {
+  --emoji-size: 3em;
+}
+
+.message--emoji-3:not(:has(.composer--edit)) .message__body-content {
+  --emoji-size: 2em;
 }
 
 .message.search-highlight {

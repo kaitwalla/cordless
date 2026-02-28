@@ -56,7 +56,7 @@ module MessagesHelper
     message_timestamp_milliseconds = message.created_at.to_fs(:epoch)
 
     tag.div id: dom_id(message),
-      class: "message #{"message--emoji" if message.plain_text_body.all_emoji?}",
+      class: class_names("message", emoji_message_class(message)),
       data: {
         controller: "reply",
         user_id: message.creator_id,
@@ -94,6 +94,18 @@ module MessagesHelper
     Rails.logger.error "Exception while generating message representation for #{message.class.name}##{message.id}, failed with: #{e.class} `#{e.message}`"
 
     ""
+  end
+
+  def emoji_message_class(message)
+    return nil unless message.emoji_only?
+
+    count = message.total_emoji_count
+    case count
+    when 1 then "message--emoji message--emoji-1"
+    when 2 then "message--emoji message--emoji-2"
+    when 3 then "message--emoji message--emoji-3"
+    else "message--emoji"
+    end
   end
 
   private

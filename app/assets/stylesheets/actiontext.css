@@ -282,4 +282,21 @@ trix-editor,
     font-size: 1.4rem !important;
     margin: 0;
   }
+
+  small {
+    font-size: 0.8em;
+    opacity: 0.8;
+  }
+}
+
+.trix-button--icon-small {
+  font-size: 0.65em !important;
+  font-weight: 600;
+  text-indent: 0 !important;
+  width: auto !important;
+  padding-inline: 0.8em !important;
+
+  &::before {
+    display: none;
+  }
 }

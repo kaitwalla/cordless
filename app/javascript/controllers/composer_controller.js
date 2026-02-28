@@ -151,7 +151,9 @@ export default class extends Controller {
   }
 
   #validInput() {
-    return this.textTarget.textContent.trim().length > 0
+    const hasText = this.textTarget.textContent.trim().length > 0
+    const hasAttachments = this.textTarget.editor?.getDocument()?.getAttachments()?.length > 0
+    return hasText || hasAttachments
   }
 
   async #submitFiles() {

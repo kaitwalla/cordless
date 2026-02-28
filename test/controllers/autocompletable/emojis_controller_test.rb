@@ -18,7 +18,7 @@ class Autocompletable::EmojisControllerTest < ActionDispatch::IntegrationTest
     custom = json.find { |e| e["value"] == "test_emoji" }
     assert custom.present?
     assert_equal "custom", custom["type"]
-    assert_equal ":test_emoji:", custom["name"]
+    assert_equal "test_emoji", custom["name"]
   end
 
   test "index filters by query" do

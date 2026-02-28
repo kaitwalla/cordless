@@ -1,6 +1,6 @@
 <%# Be sure to check/update messages/_template.html.erb when changing this file %>
 
-<div class="message__actions" data-controller="soft-keyboard">
+<div class="message__actions">
   <%= tag.details class: "position-relative",
       data: { controller: "popup", action: "keydown.esc->popup#close toggle->popup#toggle click@document->popup#closeOnClickOutside", popup_orientation_top_class: "popup-orientation-top" } do %>
     <summary class="btn message__action-btn message__options-btn">
@@ -22,9 +22,9 @@
 
         <%= link_to new_message_boost_path(message),
               class: "btn message__action-btn message__boost-btn",
-              data: { turbo_frame: dom_id(message, :new_boost), action: "soft-keyboard#open popup#close" } do %>
+              data: { turbo_frame: dom_id(message, :new_boost), action: "popup#close" } do %>
           <%= image_tag "boost.svg", class: "colorize--black", size: 20, aria: { hidden: "true" } %>
-          <span class="for-screen-reader">New boost</span>
+          <span class="for-screen-reader">More emojis</span>
         <% end %>
       </div>
 
