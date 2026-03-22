@@ -110,7 +110,7 @@
                     </div>
 
                     <div class="emoji-picker__footer">
-                      <%= link_to new_custom_emoji_path, class: "emoji-picker__add-link" do %>
+                      <%= link_to new_custom_emoji_path, class: "emoji-picker__add-link", data: { turbo_frame: "_top" } do %>
                         <%= image_tag "add.svg", size: 16, class: "emoji-picker__add-icon colorize--subtle", aria: { hidden: "true" } %>
                         Add custom emoji
                       <% end %>
